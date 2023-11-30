@@ -58,7 +58,6 @@ typedef enum {
     SVM_DOUBLE,
 } SVM_ConstantType;
 
-
 typedef struct {
     SVM_ConstantType type;
     union {
@@ -68,59 +67,54 @@ typedef struct {
 } SVM_Constant;
 
 typedef union {
-    int    ival;
+    int ival;
     double dval;
 } SVM_Value;
 
 typedef struct {
-    char    *opname;
-    char    *parameter;    
-    char    s_size;
+    char *opname;
+    char *parameter;
+    char s_size;
 } OpcodeInfo;
 
-typedef enum {
-    NATIVE_FUNCTION,
-    CSUA_FUNCTION
-} FunctionType;
+typedef enum { NATIVE_FUNCTION, CSUA_FUNCTION } FunctionType;
 
-
-typedef SVM_Value (*SVM_NativeFunction)(SVM_VirtualMachine* svm, SVM_Value* values, int arg_count);
+typedef SVM_Value (*SVM_NativeFunction)(SVM_VirtualMachine *svm,
+                                        SVM_Value *values, int arg_count);
 
 typedef struct {
-    FunctionType  f_type;
-    char         *name;
-    int           arg_count;
+    FunctionType f_type;
+    char *name;
+    int arg_count;
     union {
         SVM_NativeFunction n_func;
     } u;
 } SVM_Function;
 
-
 struct SVM_VirtualMachine_tag {
-    uint32_t      constant_pool_count;
-    SVM_Constant  *constant_pool;
-    uint32_t       global_variable_count;
-    SVM_Value     *global_variables;
-    uint8_t       *global_variable_types;
-    uint32_t       code_size;
-    uint8_t       *code;  
-    uint32_t      function_count;
-    SVM_Function  *functions;
-    uint32_t       stack_size;
-    uint8_t       *stack_value_type;
-    SVM_Value     *stack;
-    uint32_t       pc;
-    uint32_t       sp;    
-    
+    uint32_t constant_pool_count;
+    SVM_Constant *constant_pool;
+    uint32_t global_variable_count;
+    SVM_Value *global_variables;
+    uint8_t *global_variable_types;
+    uint32_t code_size;
+    uint8_t *code;
+    uint32_t function_count;
+    SVM_Function *functions;
+    uint32_t stack_size;
+    uint8_t *stack_value_type;
+    SVM_Value *stack;
+    uint32_t pc;
+    uint32_t sp;
 };
-
 
 extern OpcodeInfo svm_opcode_info[];
 
 /* svm.c */
-void svm_add_native_function(SVM_VirtualMachine* svm, 
-        SVM_NativeFunction native_f, char* name, int arg_count);
+void svm_add_native_function(SVM_VirtualMachine *svm,
+                             SVM_NativeFunction native_f, char *name,
+                             int arg_count);
 
 /* native.c */
-void add_native_functions(SVM_VirtualMachine* svm);
+void add_native_functions(SVM_VirtualMachine *svm);
 #endif

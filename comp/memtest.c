@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   memtest.c
  * Author: hiroaki
  *
@@ -16,13 +16,11 @@
 
 #include "../memory/MEM.h"
 
-
 /*
- * 
+ *
  */
 int main(int argc, char** argv) {
-   
-    char *ptr;
+    char* ptr;
     ptr = (char*)MEM_malloc(10);
     for (int i = 0; i < 10; ++i) {
         ptr[i] = 0xaa;
@@ -30,9 +28,8 @@ int main(int argc, char** argv) {
     MEM_dump_memory();
     MEM_free(ptr);
     MEM_dump_memory();
-    
-    MEM_Storage storage = MEM_open_storage(0);
 
+    MEM_Storage storage = MEM_open_storage(0);
 
     ptr = MEM_storage_malloc(storage, 17);
     for (int i = 0; i < 17; ++i) {
@@ -47,8 +44,6 @@ int main(int argc, char** argv) {
     MEM_dump_memory();
     MEM_dispose(storage);
     MEM_dump_memory();
-    
-    
+
     return (EXIT_SUCCESS);
 }
-

@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   mem.h
  * Author: hiroaki
  *
@@ -15,7 +15,4 @@ struct MEM_Controller_tag {
     Header *block_header;
 };
 
-
-
 #endif /* MEMORY_H */
-
