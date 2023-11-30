@@ -2,6 +2,9 @@
 #include <stdio.h>
 #define YYDEBUG 1
 #include "csua.h"    
+
+int yyerror(char const *str);
+int yylex();
 %}
 %union{
     int                  iv;
