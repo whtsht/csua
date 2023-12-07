@@ -516,6 +516,20 @@ static void leave_exprstmt(Statement* stmt, Visitor* visitor) {
 
 static void enter_declstmt(Statement* stmt, Visitor* visitor) {
     CS_Compiler* compiler = ((MeanVisitor*)visitor)->compiler;
+
+    Declaration* decl = cs_search_decl_in_block();
+    if (!decl) {
+        decl = cs_search_decl_global(stmt->u.declaration_s->name);
+    }
+
+    if (decl) {
+        char message[50];
+        sprintf(message, "Already defind identifier %s",
+                stmt->u.declaration_s->name);
+        add_check_log(message, visitor);
+        return;
+    }
+
     compiler->decl_list =
         cs_chain_declaration(compiler->decl_list, stmt->u.declaration_s);
     //    fprintf(stderr, "enter declstmt\n");
