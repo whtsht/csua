@@ -437,6 +437,10 @@ static void init_svm(SVM_VirtualMachine *svm) {
         (uint8_t *)MEM_malloc(sizeof(uint8_t) * svm->stack_size);
     svm->pc = 0;
     svm->sp = 0;
+    svm->pt_stack_count = 0;
+
+    // TODO use size from header
+    svm->pt_stack = (size_t *)MEM_malloc(sizeof(size_t) * 300);
 
     for (int i = 0; i < svm->global_variable_count; ++i) {
         switch (svm->global_variable_types[i]) {
@@ -496,7 +500,6 @@ static void show_status(SVM_VirtualMachine *svm) {
 
 static void svm_run(SVM_VirtualMachine *svm) {
     bool running = true;
-
     uint8_t op = 0;
     while (running) {
         switch (op = fetch(svm)) {
