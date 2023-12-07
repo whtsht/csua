@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #define YYDEBUG 1
-#include "csua.h"    
+#include "csua.h"
 
 int yyerror(char const *str);
 int yylex();
@@ -74,7 +74,7 @@ int yylex();
                  logical_and_expression equality_expression relational_expression
                  additive_expression multiplicative_expression unary_expression
                  postfix_expression primary_expression
-                 
+
 %type <assignment_operator> assignment_operator
 %type <type_specifier> type_specifier
 %type <statement> statement declaration_statement
@@ -84,8 +84,8 @@ int yylex();
 
 %%
 translation_unit
-        : definition_or_statement  
-        | translation_unit definition_or_statement 
+        : definition_or_statement
+        | translation_unit definition_or_statement
 	;
 definition_or_statement
         : function_definition
@@ -95,7 +95,7 @@ definition_or_statement
                compiler->func_list = cs_chain_function_declaration_list(compiler->func_list, $1);
            }
         }
-        | statement  
+        | statement
         {
            CS_Compiler* compiler = cs_get_current_compiler();
            if (compiler) {
@@ -105,21 +105,21 @@ definition_or_statement
         ;
 
 function_definition
-        : type_specifier IDENTIFIER LP RP SEMICOLON { $$ = cs_create_function_declaration($1, $2, NULL);}    
-        | type_specifier IDENTIFIER LP parameter_list RP SEMICOLON { $$ = cs_create_function_declaration($1, $2, $4);} 
+        : type_specifier IDENTIFIER LP RP SEMICOLON { $$ = cs_create_function_declaration($1, $2, NULL);}
+        | type_specifier IDENTIFIER LP parameter_list RP SEMICOLON { $$ = cs_create_function_declaration($1, $2, $4);}
         ;
-        
+
 parameter_list
         : type_specifier IDENTIFIER   { $$ = cs_create_parameter($1, $2); }
         | parameter_list COMMA type_specifier IDENTIFIER {$$ = cs_chain_parameter_list($1, $3, $4);}
-        
+
 argument_list
         : assignment_expression { $$ = cs_create_argument($1); }
         | argument_list COMMA assignment_expression { $$ = cs_chain_argument_list($1, $3); }
-        
+
 
 statement
-	: expression SEMICOLON 
+	: expression SEMICOLON
         {
     /*
            CS_Compiler* compiler = cs_get_current_compiler();
@@ -131,19 +131,19 @@ statement
         }
         | declaration_statement { /*printf("declaration_statement\n"); */}
 	;
-        
+
 declaration_statement
-        : type_specifier IDENTIFIER SEMICOLON 
-        { 
-            $$ = cs_create_declaration_statement($1, $2, NULL); 
-        }
-        | type_specifier IDENTIFIER ASSIGN_T expression SEMICOLON 
+        : type_specifier IDENTIFIER SEMICOLON
         {
-            $$ = cs_create_declaration_statement($1, $2, $4); 
+            $$ = cs_create_declaration_statement($1, $2, NULL);
+        }
+        | type_specifier IDENTIFIER ASSIGN_T expression SEMICOLON
+        {
+            $$ = cs_create_declaration_statement($1, $2, $4);
         }
         ;
-        
-        
+
+
 type_specifier
         : BOOLEAN_T { $$ = CS_BOOLEAN_TYPE; }
         | INT_T     { $$ = CS_INT_TYPE;     }
@@ -151,8 +151,8 @@ type_specifier
         ;
 
 expression
-	: assignment_expression 
-         { 
+	: assignment_expression
+         {
              Expression* expr = $1;
 //             printf("type = %d\n", expr->kind);
              $$ = $1;
@@ -162,7 +162,7 @@ expression
 
 assignment_expression
         : logical_or_expression
-        | postfix_expression assignment_operator assignment_expression 
+        | postfix_expression assignment_operator assignment_expression
         {
           $$ = cs_create_assignment_expression($1, $2, $3);
         }
@@ -213,7 +213,7 @@ multiplicative_expression
         ;
 
 unary_expression
-        : postfix_expression   
+        : postfix_expression
         | SUB unary_expression          { $$ = cs_create_minus_expression($2); }
         | EXCLAMATION unary_expression  { $$ = cs_create_logical_not_expression($2); }
         ;
@@ -243,7 +243,7 @@ yyerror(char const *str)
     if (compiler) {
         fprintf(stderr, "line %d :", compiler->current_line);
     }
-    
+
     fprintf(stderr, "parser error near %s\n", yytext);
     return 0;
 }
