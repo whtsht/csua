@@ -176,7 +176,6 @@ struct Statement_tag {
     union {
         Expression *expression_s;
         Declaration *declaration_s;
-        Block *block;
     } u;
 };
 
