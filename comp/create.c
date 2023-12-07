@@ -62,8 +62,7 @@ ExpressionList *cs_chain_expression_list(ExpressionList *list,
     nlist->next = NULL;
     nlist->expression = expr;
     if (p != NULL) {
-        while (p->next)
-            p = p->next;
+        while (p->next) p = p->next;
         p->next = nlist;
         return list;
     }
@@ -153,6 +152,7 @@ static Statement *cs_create_statement(StatementType type) {
     // Expression* expr = (Expression*)cs_malloc(sizeof(Expression));
     Statement *stmt = (Statement *)cs_malloc(sizeof(Statement));
     stmt->type = type;
+    stmt->line_number = *linenum;
     return stmt;
 }
 
@@ -196,7 +196,8 @@ Statement *cs_create_declaration_statement(CS_BasicType type, char *name,
 }
 
 StatementList *cs_create_statement_list(Statement *stmt) {
-    StatementList *stmt_list = (StatementList *)cs_malloc(sizeof(StatementList));
+    StatementList *stmt_list =
+        (StatementList *)cs_malloc(sizeof(StatementList));
     stmt_list->stmt = stmt;
     stmt_list->next = NULL;
     return stmt_list;
