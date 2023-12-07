@@ -13,6 +13,7 @@ int yylex();
     Expression          *expression;
     Statement           *statement;
     FunctionDeclaration *function_declaration;
+    Block               *block;
     AssignmentOperator   assignment_operator;
     CS_BasicType         type_specifier;
     ParameterList       *parameter_list;
@@ -77,7 +78,8 @@ int yylex();
 
 %type <assignment_operator> assignment_operator
 %type <type_specifier> type_specifier
-%type <statement> statement declaration_statement block
+%type <block> block
+%type <statement> statement declaration_statement
 %type <function_declaration> function_definition
 %type <parameter_list> parameter_list
 %type <argument_list> argument_list
@@ -103,6 +105,11 @@ definition_or_statement
                compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list, $1);
            }
         }
+        | block
+        ;
+
+block
+        : LC translation_unit RC { $$ = cs_create_block(); }
         ;
 
 function_definition
@@ -132,11 +139,6 @@ statement
             $$ = cs_create_expression_statement($1);
         }
         | declaration_statement { /*printf("declaration_statement\n"); */}
-        | block
-        ;
-
-block
-        : LC translation_unit RC { $$ = cs_create_block(); }
         ;
 
 declaration_statement
@@ -166,7 +168,6 @@ expression
          }
     ;
 
-
 assignment_expression
         : logical_or_expression
         | postfix_expression assignment_operator assignment_expression
@@ -174,6 +175,7 @@ assignment_expression
           $$ = cs_create_assignment_expression($1, $2, $3);
         }
         ;
+
 assignment_operator
         : ASSIGN_T        { $$ = ASSIGN;     }
         | ADD_ASSIGN_T    { $$ = ADD_ASSIGN; }
