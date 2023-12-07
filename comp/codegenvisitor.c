@@ -696,7 +696,7 @@ static void notify_assignexpr(Expression* expr, Visitor* visitor) {
         }
         case ASSIGN_PLUS_ONE:
         defualt: {
-            fprintf(stderr, "unsuuuport4ed assign operator\n");
+            fprintf(stderr, "unsupported assign operator\n");
             exit(1);
         }
     }
@@ -776,14 +776,15 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
 }
 
 static void enter_blkopstmt(Statement* stmt, Visitor* visitor) {}
+
 static void leave_blkopstmt(Statement* stmt, Visitor* visitor) {
     switch (stmt->u.blockop_s->type) {
         case BLOCK_OPE_BEGIN: {
-            // TODO push_stack_ptrのバイトコード生成
+            gen_byte_code((CodegenVisitor*)visitor, SVM_PUSH_STACK_PT);
             break;
         }
         case BLOCK_OPE_END: {
-            // TODO pop_stack_ptrのバイトコード生成
+            gen_byte_code((CodegenVisitor*)visitor, SVM_POP_STACK_PT);
             break;
         }
         default: {
