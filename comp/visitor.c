@@ -358,10 +358,8 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
 static void enter_blkopstmt(Statement* stmt, Visitor* visitor){
     print_depth();
     fprintf(stderr, "enter blkopstmt\n");
-    increment();
 }
 static void leave_blkopstmt(Statement* stmt, Visitor* visitor){
-    decrement();
     print_depth();
     fprintf(stderr, "leave blkopstmt\n");
 }
