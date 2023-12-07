@@ -10,11 +10,10 @@ all: $(TARGET)
 
 $(TARGET): $(OBJS) $(MEMORY)
 	make -C ../memory
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ -lm
 
 .c.o:
 	$(CC) $(CFLAGS) $*.c
 
 clean:
 	rm -rf $(TARGET) *.o *~ disasm svm
-

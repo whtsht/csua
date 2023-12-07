@@ -1,27 +1,28 @@
 #include <stdio.h>
 #include <string.h>
-#include "csua.h"
+
 #include "../memory/MEM.h"
+#include "csua.h"
 
 static MEM_Storage storage = NULL;
 static CS_Compiler* compiler = NULL;
 
-static int *linenum = NULL;
+static int* linenum = NULL;
 
 /* for debug */
 extern int current_line;
 
-static void init_storage() {    
-    if (storage == NULL) { 
-#ifdef STORAGE                
+static void init_storage() {
+    if (storage == NULL) {
+#ifdef STORAGE
         storage = MEM_open_storage(0);
         printf("init_storage\n");
         linenum = &current_line;
-        
+
 #else
         storage = cs_get_current_compiler()->storage;
         linenum = &cs_get_current_compiler()->current_line;
-        
+
 #endif
     }
 }
@@ -32,13 +33,12 @@ void* cs_malloc(size_t size) {
 }
 
 static Expression* cs_create_expression(ExpressionKind ekind) {
-    Expression* expr = (Expression*)cs_malloc(sizeof(Expression));    
+    Expression* expr = (Expression*)cs_malloc(sizeof(Expression));
     expr->kind = ekind;
     expr->type = NULL;
     expr->line_number = *linenum;
     return expr;
 }
-
 
 Expression* cs_create_int_expression(int v) {
     Expression* expr = cs_create_expression(INT_EXPRESSION);
@@ -47,25 +47,26 @@ Expression* cs_create_int_expression(int v) {
 }
 
 void delete_storage() {
-#ifdef STORAGE            
+#ifdef STORAGE
     if (storage != NULL) {
         MEM_dispose(storage);
     }
-#endif            
+#endif
 }
 
-ExpressionList* cs_chain_expression_list(ExpressionList* list, Expression* expr) {
+ExpressionList* cs_chain_expression_list(ExpressionList* list,
+                                         Expression* expr) {
     ExpressionList* p = list;
-    ExpressionList* nlist= (ExpressionList*)MEM_storage_malloc(storage, sizeof(ExpressionList));    
+    ExpressionList* nlist =
+        (ExpressionList*)MEM_storage_malloc(storage, sizeof(ExpressionList));
     nlist->next = NULL;
-    nlist->expression = expr;    
+    nlist->expression = expr;
     if (p != NULL) {
         while (p->next) p = p->next;
         p->next = nlist;
         return list;
-    } 
+    }
     return nlist;
-    
 }
 
 Expression* cs_create_double_expression(double v) {
@@ -86,14 +87,16 @@ Expression* cs_create_identifier_expression(char* identifier) {
     return expr;
 }
 
-Expression* cs_create_inc_dec_expression(Expression* id_expr, ExpressionKind inc_dec) {
+Expression* cs_create_inc_dec_expression(Expression* id_expr,
+                                         ExpressionKind inc_dec) {
     Expression* expr = cs_create_expression(inc_dec);
     expr->u.inc_dec = id_expr;
     return expr;
 }
 
 // args is argument not yet
-Expression* cs_create_function_call_expression(Expression* function, ArgumentList* args) {
+Expression* cs_create_function_call_expression(Expression* function,
+                                               ArgumentList* args) {
     Expression* expr = cs_create_expression(FUNCTION_CALL_EXPRESSION);
     expr->u.function_call_expression.function = function;
     expr->u.function_call_expression.argument = args;
@@ -112,19 +115,22 @@ Expression* cs_create_logical_not_expression(Expression* operand) {
     return expr;
 }
 
-Expression* cs_create_binary_expression(ExpressionKind kind, Expression* left, Expression* right) {
+Expression* cs_create_binary_expression(ExpressionKind kind, Expression* left,
+                                        Expression* right) {
     Expression* expr = cs_create_expression(kind);
     expr->u.binary_expression.left = left;
     expr->u.binary_expression.right = right;
-    return expr;   
+    return expr;
 }
 
-Expression* cs_create_assignment_expression(Expression *left, AssignmentOperator aope, Expression* operand) {
+Expression* cs_create_assignment_expression(Expression* left,
+                                            AssignmentOperator aope,
+                                            Expression* operand) {
     Expression* expr = cs_create_expression(ASSIGN_EXPRESSION);
     expr->u.assignment_expression.aope = aope;
     expr->u.assignment_expression.left = left;
     expr->u.assignment_expression.right = operand;
-    return expr;            
+    return expr;
 }
 
 Expression* cs_create_cast_expression(CS_CastType ctype, Expression* operand) {
@@ -133,8 +139,7 @@ Expression* cs_create_cast_expression(CS_CastType ctype, Expression* operand) {
     expr->u.cast_expression.expr = operand;
     return expr;
 }
-        
-        
+
 char* cs_create_identifier(const char* str) {
     char* new_char;
     new_char = (char*)cs_malloc(strlen(str) + 1);
@@ -142,13 +147,12 @@ char* cs_create_identifier(const char* str) {
     return new_char;
 }
 
-
 /* For Statement */
 static Statement* cs_create_statement(StatementType type) {
-    //Expression* expr = (Expression*)cs_malloc(sizeof(Expression));   
+    // Expression* expr = (Expression*)cs_malloc(sizeof(Expression));
     Statement* stmt = (Statement*)cs_malloc(sizeof(Statement));
     stmt->type = type;
-    return stmt;    
+    return stmt;
 }
 
 Statement* cs_create_expression_statement(Expression* expr) {
@@ -156,7 +160,6 @@ Statement* cs_create_expression_statement(Expression* expr) {
     stmt->u.expression_s = expr;
     return stmt;
 }
-
 
 TypeSpecifier* cs_create_type_specifier(CS_BasicType type) {
     TypeSpecifier* ts = (TypeSpecifier*)cs_malloc(sizeof(TypeSpecifier));
@@ -174,21 +177,22 @@ ParameterList* cs_create_parameter(CS_BasicType type, char* name) {
     return param;
 }
 
-static Declaration* cs_create_declaration(CS_BasicType type, char* name, Expression* initializer) {
+static Declaration* cs_create_declaration(CS_BasicType type, char* name,
+                                          Expression* initializer) {
     Declaration* decl = (Declaration*)cs_malloc(sizeof(Declaration));
     decl->type = cs_create_type_specifier(type);
     decl->name = name;
     decl->initializer = initializer;
     decl->index = -1;
-    return decl;        
+    return decl;
 }
 
-Statement* cs_create_declaration_statement(CS_BasicType type, char* name, Expression* initializer) {
+Statement* cs_create_declaration_statement(CS_BasicType type, char* name,
+                                           Expression* initializer) {
     Statement* stmt = cs_create_statement(DECLARATION_STATEMENT);
-    stmt->u.declaration_s = cs_create_declaration(type, name, initializer);   
-    return stmt;    
+    stmt->u.declaration_s = cs_create_declaration(type, name, initializer);
+    return stmt;
 }
-
 
 StatementList* cs_create_statement_list(Statement* stmt) {
     StatementList* stmt_list = (StatementList*)cs_malloc(sizeof(StatementList));
@@ -200,13 +204,15 @@ StatementList* cs_create_statement_list(Statement* stmt) {
 DeclarationList* cs_create_declaration_list(Declaration* decl) {
     DeclarationList* list = cs_malloc(sizeof(DeclarationList));
     list->next = NULL;
-    list->decl = decl; 
+    list->decl = decl;
     return list;
 }
 
-
-FunctionDeclaration* cs_create_function_declaration(CS_BasicType type, char *name, ParameterList* param) {
-    FunctionDeclaration* decl = (FunctionDeclaration*)cs_malloc(sizeof(FunctionDeclaration));
+FunctionDeclaration* cs_create_function_declaration(CS_BasicType type,
+                                                    char* name,
+                                                    ParameterList* param) {
+    FunctionDeclaration* decl =
+        (FunctionDeclaration*)cs_malloc(sizeof(FunctionDeclaration));
     decl->type = cs_create_type_specifier(type);
     decl->name = name;
     decl->param = param;
@@ -214,7 +220,8 @@ FunctionDeclaration* cs_create_function_declaration(CS_BasicType type, char *nam
     return decl;
 }
 
-FunctionDeclarationList* cs_create_function_declaration_list(FunctionDeclaration* func) {
+FunctionDeclarationList* cs_create_function_declaration_list(
+    FunctionDeclaration* func) {
     FunctionDeclarationList* list = cs_malloc(sizeof(FunctionDeclarationList));
     list->next = NULL;
     list->func = func;
@@ -227,4 +234,3 @@ ArgumentList* cs_create_argument(Expression* expr) {
     argument->next = NULL;
     return argument;
 }
-

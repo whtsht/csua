@@ -5,8 +5,7 @@
 #include "visitor.h"
 
 static void traverse_expr_children(Expression* expr, Visitor* visitor);
-static void traverse_stmt_children(Statement*  stmt, Visitor* visitor);
-
+static void traverse_stmt_children(Statement* stmt, Visitor* visitor);
 
 void traverse_expr(Expression* expr, Visitor* visitor) {
     if (expr) {
@@ -18,8 +17,7 @@ void traverse_expr(Expression* expr, Visitor* visitor) {
         visitor->enter_expr_list[expr->kind](expr, visitor);
         traverse_expr_children(expr, visitor);
         visitor->leave_expr_list[expr->kind](expr, visitor);
-
-    }    
+    }
 }
 
 void traverse_stmt(Statement* stmt, Visitor* visitor) {
@@ -35,23 +33,24 @@ void traverse_stmt(Statement* stmt, Visitor* visitor) {
 }
 
 static void traverse_stmt_children(Statement* stmt, Visitor* visitor) {
-    switch(stmt->type) {
+    switch (stmt->type) {
         case EXPRESSION_STATEMENT: {
             traverse_expr(stmt->u.expression_s, visitor);
-          break;  
+            break;
         }
         case DECLARATION_STATEMENT: {
             traverse_expr(stmt->u.declaration_s->initializer, visitor);
             break;
         }
         default: {
-            fprintf(stderr, "No such stmt->type %d in traverse_stmt_children\n", stmt->type);
+            fprintf(stderr, "No such stmt->type %d in traverse_stmt_children\n",
+                    stmt->type);
         }
     }
 }
 
-static void traverse_expr_children(Expression* expr, Visitor *visitor) {
-    switch(expr->kind) {
+static void traverse_expr_children(Expression* expr, Visitor* visitor) {
+    switch (expr->kind) {
         case BOOLEAN_EXPRESSION:
         case IDENTIFIER_EXPRESSION:
         case DOUBLE_EXPRESSION:
@@ -79,8 +78,7 @@ static void traverse_expr_children(Expression* expr, Visitor *visitor) {
                     visitor->notify_expr_list[ASSIGN_EXPRESSION](expr, visitor);
                 }
             }
-            
-            
+
             traverse_expr(expr->u.assignment_expression.left, visitor);
             break;
         }
@@ -89,24 +87,24 @@ static void traverse_expr_children(Expression* expr, Visitor *visitor) {
             break;
         }
         case FUNCTION_CALL_EXPRESSION: {
-//            printf("function call!\n");
+            //            printf("function call!\n");
             ArgumentList* args = expr->u.function_call_expression.argument;
             if (args) {
-                for (; args; args=args->next) {
+                for (; args; args = args->next) {
                     traverse_expr(args->expr, visitor);
                 }
             }
-            traverse_expr(expr->u.function_call_expression.function, visitor);            
+            traverse_expr(expr->u.function_call_expression.function, visitor);
             break;
         }
         case LOGICAL_AND_EXPRESSION:
-        case LOGICAL_OR_EXPRESSION:            
+        case LOGICAL_OR_EXPRESSION:
         case LT_EXPRESSION:
         case LE_EXPRESSION:
         case GT_EXPRESSION:
         case GE_EXPRESSION:
         case EQ_EXPRESSION:
-        case NE_EXPRESSION:            
+        case NE_EXPRESSION:
         case MOD_EXPRESSION:
         case DIV_EXPRESSION:
         case MUL_EXPRESSION:
@@ -121,6 +119,7 @@ static void traverse_expr_children(Expression* expr, Visitor *visitor) {
             break;
         }
         default:
-            fprintf(stderr, "No such expr->kind %d in traverse_expr_children\n", expr->kind);
+            fprintf(stderr, "No such expr->kind %d in traverse_expr_children\n",
+                    expr->kind);
     }
 }

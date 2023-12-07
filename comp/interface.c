@@ -1,14 +1,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "csua.h"
 #include "visitor.h"
 
-
-
 CS_Compiler* CS_create_compiler() {
     MEM_Storage storage;
-    CS_Compiler *compiler;    
+    CS_Compiler* compiler;
     storage = MEM_open_storage(0);
     compiler = (CS_Compiler*)MEM_storage_malloc(storage, sizeof(CS_Compiler));
     compiler->storage = storage;
@@ -17,9 +16,9 @@ CS_Compiler* CS_create_compiler() {
     compiler->decl_list = NULL;
     compiler->func_list = NULL;
     compiler->current_line = 1;
-    
+
     cs_set_current_compiler(compiler);
-    
+
     return compiler;
 }
 
@@ -29,36 +28,37 @@ void CS_delete_compiler(CS_Compiler* compiler) {
 }
 
 static CS_Boolean do_mean_check(CS_Compiler* compiler) {
-    MeanVisitor* mean_visitor = create_mean_visitor();    
-    
+    MeanVisitor* mean_visitor = create_mean_visitor();
+
     StatementList* stmt_list = compiler->stmt_list;
-    while(stmt_list) {
+    while (stmt_list) {
         traverse_stmt(stmt_list->stmt, (Visitor*)mean_visitor);
         stmt_list = stmt_list->next;
     }
-    
+
     DeclarationList* dp = NULL;
     dp = compiler->decl_list;
     for (int i = 0; dp; dp = dp->next, ++i) {
         dp->decl->index = i;
     }
-        
+
     FunctionDeclarationList* func_list = compiler->func_list;
     for (int i = 0; func_list; func_list = func_list->next, ++i) {
         func_list->func->index = i;
     }
 
-/*    
-    func_list = compiler->func_list;    
-    for (; func_list; func_list = func_list->next) {
-        printf("func name[%d] = %s\n", func_list->func->index, func_list->func->name);
-    }    
-    
-    dp = compiler->decl_list;
-    for (int i = 0; dp; dp = dp->next, ++i) {
-        printf("index = %d\n", dp->decl->index);
-    }
-*/    
+    /*
+        func_list = compiler->func_list;
+        for (; func_list; func_list = func_list->next) {
+            printf("func name[%d] = %s\n", func_list->func->index,
+       func_list->func->name);
+        }
+
+        dp = compiler->decl_list;
+        for (int i = 0; dp; dp = dp->next, ++i) {
+            printf("index = %d\n", dp->decl->index);
+        }
+    */
     if (mean_visitor->check_log != NULL) {
         show_mean_error(mean_visitor);
         delete_visitor((Visitor*)mean_visitor);
@@ -66,12 +66,12 @@ static CS_Boolean do_mean_check(CS_Compiler* compiler) {
     } else {
         delete_visitor((Visitor*)mean_visitor);
         return CS_TRUE;
-    }    
+    }
 }
 
-CS_Boolean CS_compile(CS_Compiler* compiler, FILE *fin) {
+CS_Boolean CS_compile(CS_Compiler* compiler, FILE* fin) {
     extern int yyparse(void);
-    extern FILE *yyin;
+    extern FILE* yyin;
     yyin = fin;
     if (yyin == NULL) {
         fprintf(stderr, "cannot open file\n");
@@ -80,8 +80,7 @@ CS_Boolean CS_compile(CS_Compiler* compiler, FILE *fin) {
     if (yyparse()) {
         fprintf(stderr, "Parse Error");
         exit(1);
-    }   
-    
+    }
+
     return do_mean_check((compiler));
 }
-

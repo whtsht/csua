@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "csua.h"
 #include "y.tab.h"
 
 int main(void) {
-    
     extern FILE *yyin;
     extern int yylex();
     yyin = fopen("tests/test.cs", "r");
@@ -12,13 +12,13 @@ int main(void) {
         fprintf(stderr, "cannot open file\n");
         exit(1);
     }
-    
+
     int t_type;
-        
-    while(1) {
+
+    while (1) {
         t_type = yylex();
 
-        switch(t_type) {
+        switch (t_type) {
             case INT_LITERAL: {
                 printf("INT_LITERAL: %d\n", yylval.iv);
                 break;
@@ -72,7 +72,7 @@ int main(void) {
                 break;
             }
             case GE: {
-                printf("GE\n");                
+                printf("GE\n");
                 break;
             }
             case GT: {
@@ -152,7 +152,7 @@ int main(void) {
                 break;
             }
             case BOOLEAN_T: {
-                printf("BOOLEAN_T\n");                
+                printf("BOOLEAN_T\n");
                 break;
             }
             case INT_T: {
@@ -173,15 +173,13 @@ int main(void) {
             }
             case EOF: {
                 printf("END OF FILE\n");
-//                printf("line = %d\n", get_current_line());
-                
+                //                printf("line = %d\n", get_current_line());
+
                 exit(1);
                 break;
             }
-            
         }
     }
-    
-    
+
     return 0;
 }

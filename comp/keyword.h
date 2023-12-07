@@ -7,5 +7,4 @@ struct OPE {
     int type;
 };
 
-
 #endif
