@@ -1,5 +1,3 @@
-#include <stdint.h>
-
 #include "svm.h"
 
 OpcodeInfo svm_opcode_info[] = {
