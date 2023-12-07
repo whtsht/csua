@@ -77,7 +77,7 @@ int yylex();
 
 %type <assignment_operator> assignment_operator
 %type <type_specifier> type_specifier
-%type <statement> statement declaration_statement
+%type <statement> statement declaration_statement block
 %type <function_declaration> function_definition
 %type <parameter_list> parameter_list
 %type <argument_list> argument_list
@@ -86,7 +86,8 @@ int yylex();
 translation_unit
         : definition_or_statement
         | translation_unit definition_or_statement
-	;
+        ;
+
 definition_or_statement
         : function_definition
         {
@@ -112,25 +113,31 @@ function_definition
 parameter_list
         : type_specifier IDENTIFIER   { $$ = cs_create_parameter($1, $2); }
         | parameter_list COMMA type_specifier IDENTIFIER {$$ = cs_chain_parameter_list($1, $3, $4);}
+        ;
 
 argument_list
         : assignment_expression { $$ = cs_create_argument($1); }
         | argument_list COMMA assignment_expression { $$ = cs_chain_argument_list($1, $3); }
-
+        ;
 
 statement
-	: expression SEMICOLON
+        : expression SEMICOLON
         {
-    /*
+        /*
            CS_Compiler* compiler = cs_get_current_compiler();
            if (compiler) {
                compiler->expr_list = cs_chain_expression_list(compiler->expr_list, $1);
            }
-     */
+        */
             $$ = cs_create_expression_statement($1);
         }
         | declaration_statement { /*printf("declaration_statement\n"); */}
-	;
+        | block
+        ;
+
+block
+        : LC translation_unit RC { $$ = cs_create_block(); }
+        ;
 
 declaration_statement
         : type_specifier IDENTIFIER SEMICOLON
@@ -151,13 +158,13 @@ type_specifier
         ;
 
 expression
-	: assignment_expression
+    : assignment_expression
          {
              Expression* expr = $1;
 //             printf("type = %d\n", expr->kind);
              $$ = $1;
          }
-	;
+    ;
 
 
 assignment_expression
@@ -227,13 +234,13 @@ postfix_expression
         ;
 
 primary_expression
-	: LP expression RP { $$ = $2;}
-	| IDENTIFIER       { $$ = cs_create_identifier_expression($1); }
-	| INT_LITERAL      { $$ = cs_create_int_expression($1); }
-	| DOUBLE_LITERAL   { $$ = cs_create_double_expression($1); }
-	| TRUE_T           { $$ = cs_create_boolean_expression(CS_TRUE); }
-	| FALSE_T          { $$ = cs_create_boolean_expression(CS_FALSE); }
-	;
+        : LP expression RP { $$ = $2;}
+        | IDENTIFIER       { $$ = cs_create_identifier_expression($1); }
+        | INT_LITERAL      { $$ = cs_create_int_expression($1); }
+        | DOUBLE_LITERAL   { $$ = cs_create_double_expression($1); }
+        | TRUE_T           { $$ = cs_create_boolean_expression(CS_TRUE); }
+        | FALSE_T          { $$ = cs_create_boolean_expression(CS_FALSE); }
+        ;
 %%
 int
 yyerror(char const *str)
