@@ -108,7 +108,7 @@ definition_or_statement
 
 block
         : block_begin_statement translation_unit block_end_statement { }
-        // | LC RC { }
+        | LC RC { }
         ;
 
 block_begin_statement
