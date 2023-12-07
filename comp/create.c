@@ -152,6 +152,7 @@ static Statement *cs_create_statement(StatementType type) {
     // Expression* expr = (Expression*)cs_malloc(sizeof(Expression));
     Statement *stmt = (Statement *)cs_malloc(sizeof(Statement));
     stmt->type = type;
+    stmt->line_number = *linenum;
     return stmt;
 }
 

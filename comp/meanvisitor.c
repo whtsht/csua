@@ -521,7 +521,7 @@ static void enter_declstmt(Statement* stmt, Visitor* visitor) {
 
     if (decl) {
         char message[50];
-        sprintf(message, "Already defind identifier %s",
+        sprintf(message, "%d: Already defind identifier %s", stmt->line_number,
                 stmt->u.declaration_s->name);
         add_check_log(message, visitor);
         return;
