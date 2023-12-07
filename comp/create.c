@@ -62,8 +62,7 @@ ExpressionList *cs_chain_expression_list(ExpressionList *list,
     nlist->next = NULL;
     nlist->expression = expr;
     if (p != NULL) {
-        while (p->next)
-            p = p->next;
+        while (p->next) p = p->next;
         p->next = nlist;
         return list;
     }
@@ -196,7 +195,8 @@ Statement *cs_create_declaration_statement(CS_BasicType type, char *name,
 }
 
 StatementList *cs_create_statement_list(Statement *stmt) {
-    StatementList *stmt_list = (StatementList *)cs_malloc(sizeof(StatementList));
+    StatementList *stmt_list =
+        (StatementList *)cs_malloc(sizeof(StatementList));
     stmt_list->stmt = stmt;
     stmt_list->next = NULL;
     return stmt_list;
@@ -236,10 +236,18 @@ ArgumentList *cs_create_argument(Expression *expr) {
     return argument;
 }
 
-Block *cs_create_block() {
-    Block *block = cs_malloc(sizeof(Block));
-    block->depth = 0;
-    block->line_number_begin = 0;
-    block->line_number_end = 0;
-    return block;
+static BlockOperation *cs_create_block_operation(BlockOperationType type) {
+    BlockOperation *block_ope = cs_malloc(sizeof(BlockOperation));
+    block_ope->type = type;
+    return block_ope;
+}
+Statement *cs_create_block_begin_statement() {
+    Statement *stmt = cs_create_statement(BLOCKOPERATION_STATEMENT);
+    stmt->u.blockop_s = cs_create_block_operation(BLOCK_OPE_BEGIN);
+    return stmt;
+}
+Statement *cs_create_block_end_statement() {
+    Statement *stmt = cs_create_statement(BLOCKOPERATION_STATEMENT);
+    stmt->u.blockop_s = cs_create_block_operation(BLOCK_OPE_END);
+    return stmt;
 }

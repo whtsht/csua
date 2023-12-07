@@ -695,7 +695,7 @@ static void notify_assignexpr(Expression* expr, Visitor* visitor) {
             break;
         }
         case ASSIGN_PLUS_ONE:
-        defualt : {
+        defualt: {
             fprintf(stderr, "unsuuuport4ed assign operator\n");
             exit(1);
         }
@@ -775,6 +775,24 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
     }
 }
 
+static void enter_blkopstmt(Statement* stmt, Visitor* visitor) {}
+static void leave_blkopstmt(Statement* stmt, Visitor* visitor) {
+    switch (stmt->u.blockop_s->type) {
+        case BLOCK_OPE_BEGIN: {
+            // TODO push_stack_ptrのバイトコード生成
+            break;
+        }
+        case BLOCK_OPE_END: {
+            // TODO pop_stack_ptrのバイトコード生成
+            break;
+        }
+        default: {
+            fprintf(stderr, "unknown type in leave_blkopstmt\n");
+            exit(1);
+        }
+    }
+}
+
 CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
                                        CS_Executable* exec) {
     visit_expr* enter_expr_list;
@@ -848,6 +866,7 @@ CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
 
     enter_stmt_list[EXPRESSION_STATEMENT] = enter_exprstmt;
     enter_stmt_list[DECLARATION_STATEMENT] = enter_declstmt;
+    enter_stmt_list[BLOCKOPERATION_STATEMENT] = enter_blkopstmt;
 
     notify_expr_list[ASSIGN_EXPRESSION] = notify_assignexpr;
 
@@ -879,6 +898,7 @@ CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
 
     leave_stmt_list[EXPRESSION_STATEMENT] = leave_exprstmt;
     leave_stmt_list[DECLARATION_STATEMENT] = leave_declstmt;
+    leave_stmt_list[BLOCKOPERATION_STATEMENT] = leave_blkopstmt;
 
     ((Visitor*)visitor)->enter_expr_list = enter_expr_list;
     ((Visitor*)visitor)->leave_expr_list = leave_expr_list;
