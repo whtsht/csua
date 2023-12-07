@@ -695,8 +695,8 @@ static void notify_assignexpr(Expression* expr, Visitor* visitor) {
             break;
         }
         case ASSIGN_PLUS_ONE:
-        defualt : {
-            fprintf(stderr, "unsuuuport4ed assign operator\n");
+        defualt: {
+            fprintf(stderr, "unsupported assign operator\n");
             exit(1);
         }
     }
@@ -775,6 +775,14 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
     }
 }
 
+static void enter_blockstmt(Statement* stmt, Visitor* visitor) {
+    gen_byte_code((CodegenVisitor*)visitor, SVM_PUSH_STACK_PT);
+}
+
+static void leave_blockstmt(Statement* stmt, Visitor* visitor) {
+    gen_byte_code((CodegenVisitor*)visitor, SVM_POP_STACK_PT);
+}
+
 CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
                                        CS_Executable* exec) {
     visit_expr* enter_expr_list;
@@ -848,6 +856,7 @@ CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
 
     enter_stmt_list[EXPRESSION_STATEMENT] = enter_exprstmt;
     enter_stmt_list[DECLARATION_STATEMENT] = enter_declstmt;
+    enter_stmt_list[BLOCK_STATEMENT] = enter_blockstmt;
 
     notify_expr_list[ASSIGN_EXPRESSION] = notify_assignexpr;
 
@@ -879,6 +888,7 @@ CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
 
     leave_stmt_list[EXPRESSION_STATEMENT] = leave_exprstmt;
     leave_stmt_list[DECLARATION_STATEMENT] = leave_declstmt;
+    leave_stmt_list[BLOCK_STATEMENT] = leave_blockstmt;
 
     ((Visitor*)visitor)->enter_expr_list = enter_expr_list;
     ((Visitor*)visitor)->leave_expr_list = leave_expr_list;
