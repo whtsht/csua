@@ -41,8 +41,7 @@ static void add_check_log(const char* str, Visitor* visitor) {
         ((MeanVisitor*)visitor)->check_log = log;
         return;
     } else {
-        for (p = ((MeanVisitor*)visitor)->check_log; p->next; p = p->next)
-            ;
+        for (p = ((MeanVisitor*)visitor)->check_log; p->next; p = p->next);
         p->next = log;
     }
 }
@@ -458,10 +457,8 @@ static void leave_funccallexpr(Expression* expr, Visitor* visitor) {
         ParameterList* params = func_dec->param;
         ArgumentList* args = f_expr->argument;
         int params_count, args_count;
-        for (params_count = 0; params; params = params->next, ++params_count)
-            ;
-        for (args_count = 0; args; args = args->next, ++args_count)
-            ;
+        for (params_count = 0; params; params = params->next, ++params_count);
+        for (args_count = 0; args; args = args->next, ++args_count);
         //        printf("params_count = %d\n", params_count);
         //        printf("args_count   = %d\n", args_count);
 
@@ -544,6 +541,9 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
     }
 }
 
+static void enter_blkopstmt(Statement* stmt, Visitor* visitor) {}
+static void leave_blkopstmt(Statement* stmt, Visitor* visitor) {}
+
 MeanVisitor* create_mean_visitor() {
     visit_expr* enter_expr_list;
     visit_expr* leave_expr_list;
@@ -594,6 +594,7 @@ MeanVisitor* create_mean_visitor() {
 
     enter_stmt_list[EXPRESSION_STATEMENT] = enter_exprstmt;
     enter_stmt_list[DECLARATION_STATEMENT] = enter_declstmt;
+    enter_stmt_list[BLOCKOPERATION_STATEMENT] = enter_blkopstmt;
 
     leave_expr_list[BOOLEAN_EXPRESSION] = leave_boolexpr;
     leave_expr_list[INT_EXPRESSION] = leave_intexpr;
@@ -623,6 +624,7 @@ MeanVisitor* create_mean_visitor() {
 
     leave_stmt_list[EXPRESSION_STATEMENT] = leave_exprstmt;
     leave_stmt_list[DECLARATION_STATEMENT] = leave_declstmt;
+    leave_stmt_list[BLOCKOPERATION_STATEMENT] = leave_blkopstmt;
 
     ((Visitor*)visitor)->enter_expr_list = enter_expr_list;
     ((Visitor*)visitor)->leave_expr_list = leave_expr_list;

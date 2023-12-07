@@ -13,7 +13,6 @@ int yylex();
     Expression          *expression;
     Statement           *statement;
     FunctionDeclaration *function_declaration;
-    Block               *block;
     AssignmentOperator   assignment_operator;
     CS_BasicType         type_specifier;
     ParameterList       *parameter_list;
@@ -78,7 +77,6 @@ int yylex();
 
 %type <assignment_operator> assignment_operator
 %type <type_specifier> type_specifier
-%type <block> block
 %type <statement> statement declaration_statement
 %type <function_declaration> function_definition
 %type <parameter_list> parameter_list
@@ -105,11 +103,32 @@ definition_or_statement
                compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list, $1);
            }
         }
-        | block
+        | block { }
         ;
 
 block
-        : LC translation_unit RC { $$ = cs_create_block(); }
+        : block_begin_statement translation_unit block_end_statement { }
+        // | LC RC { }
+        ;
+
+block_begin_statement
+        : LC
+        {
+           CS_Compiler* compiler = cs_get_current_compiler();
+           if (compiler) {
+               compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list, cs_create_block_begin_statement());
+           }
+        }
+        ;
+
+block_end_statement
+        : RC
+        {
+           CS_Compiler* compiler = cs_get_current_compiler();
+           if (compiler) {
+               compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list, cs_create_block_end_statement());
+           }
+        }
         ;
 
 function_definition

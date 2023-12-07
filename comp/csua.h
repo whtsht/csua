@@ -13,7 +13,7 @@
 #include "../memory/MEM.h"
 
 typedef struct Expression_tag Expression;
-typedef struct Block_tag Block;
+typedef struct BlockOperation_tag BlockOperation;
 typedef struct Visitor_tag Visitor;
 typedef struct MeanVisitor_tag MeanVisitor;
 typedef struct CodegenVisitor_tag CodegenVisitor;
@@ -22,8 +22,7 @@ typedef struct CS_Compiler_tag CS_Compiler;
 typedef struct TypeSpecifier_tag TypeSpecifier;
 typedef struct Statement_tag Statement;
 
-typedef enum { CS_FALSE = 0,
-               CS_TRUE = 1 } CS_Boolean;
+typedef enum { CS_FALSE = 0, CS_TRUE = 1 } CS_Boolean;
 
 typedef enum {
     CS_BOOLEAN_TYPE,
@@ -137,10 +136,14 @@ typedef struct {
     Expression *right;
 } AssignmentExpression;
 
-struct Block_tag {
-    int depth;
-    int line_number_begin;
-    int line_number_end;
+typedef enum {
+    BLOCK_OPE_BEGIN = 1,
+    BLOCK_OPE_END,
+    BLOCK_OPE_TYPE_PLUS_ONE
+} BlockOperationType;
+
+struct BlockOperation_tag {
+    BlockOperationType type;
 };
 
 struct Expression_tag {
@@ -167,7 +170,7 @@ struct Expression_tag {
 typedef enum {
     EXPRESSION_STATEMENT = 1,
     DECLARATION_STATEMENT,
-    BLOCK_STATEMENT,
+    BLOCKOPERATION_STATEMENT,
     STATEMENT_TYPE_COUNT_PLUS_ONE
 } StatementType;
 
@@ -177,6 +180,7 @@ struct Statement_tag {
     union {
         Expression *expression_s;
         Declaration *declaration_s;
+        BlockOperation *blockop_s;
     } u;
 };
 
@@ -203,7 +207,7 @@ typedef struct FunctionDeclarationList_tag {
 
 struct CS_Compiler_tag {
     MEM_Storage storage;
-    ExpressionList *expr_list; // temporary
+    ExpressionList *expr_list;  // temporary
     StatementList *stmt_list;
     DeclarationList *decl_list;
     FunctionDeclarationList *func_list;
@@ -217,8 +221,7 @@ typedef struct {
     TypeSpecifier *type;
 } CS_Variable;
 
-typedef enum { CS_CONSTANT_INT,
-               CS_CONSTANT_DOUBLE } CS_ConstantType;
+typedef enum { CS_CONSTANT_INT, CS_CONSTANT_DOUBLE } CS_ConstantType;
 
 typedef struct {
     CS_ConstantType type;
@@ -299,7 +302,8 @@ ParameterList *cs_chain_parameter_list(ParameterList *list, CS_BasicType type,
                                        char *name);
 ArgumentList *cs_chain_argument_list(ArgumentList *list, Expression *expr);
 
-Block *cs_create_block();
+Statement *cs_create_block_begin_statement();
+Statement *cs_create_block_end_statement();
 
 /* scanner.c */
 int get_current_line();
