@@ -336,6 +336,9 @@ static void svm_delete(SVM_VirtualMachine *svm) {
     if (svm->stack_value_type) {
         MEM_free(svm->stack_value_type);
     }
+    if (svm->pt_stack) {
+        MEM_free(svm->pt_stack);
+    }
 
     MEM_free(svm);
 }
@@ -386,6 +389,7 @@ static void push_d(SVM_VirtualMachine *svm, double dv) {
 static void push_pt(SVM_VirtualMachine *svm) {
     svm->pt_stack[svm->pt_stack_count] = svm->sp;
     svm->pt_stack_count++;
+    svm->sp++;
 }
 
 static int pop_i(SVM_VirtualMachine *svm) {
@@ -422,10 +426,11 @@ static int read_global_i(SVM_VirtualMachine *svm, uint32_t idx) {
 static void write_global_d(SVM_VirtualMachine *svm, uint32_t idx, double dv) {
     write_d(svm->global_variables, 0, idx, dv);
 }
-// static void write_stack_pt(SVM_VirtualMachine *svm,uint32_t idx)
-// {
 
+<<<<<<< HEAD
 // }
+=======
+>>>>>>> taichi_VM
 static double read_global_d(SVM_VirtualMachine *svm, uint32_t idx) {
     return read_d(svm->global_variables, 0, idx);
 }
@@ -499,7 +504,6 @@ static void show_status(SVM_VirtualMachine *svm) {
 
 static void svm_run(SVM_VirtualMachine *svm) {
     bool running = true;
-
     uint8_t op = 0;
     while (running) {
         switch (op = fetch(svm)) {
@@ -530,12 +534,9 @@ static void svm_run(SVM_VirtualMachine *svm) {
                 //                exit(1);
                 break;
             }
-            case SVM_POP_STACK_PT:  //
-            {
-                uint16_t s_idx = fetch2(svm);
+            case SVM_POP_STACK_PT: {
             }
-            case SVM_PUSH_STACK_PT:  //
-            {
+            case SVM_PUSH_STACK_PT: {  //
                 uint16_t s_idx = fetch2(svm);
                 push_pt(svm);
                 break;
