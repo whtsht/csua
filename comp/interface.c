@@ -17,6 +17,11 @@ CS_Compiler* CS_create_compiler() {
     compiler->func_list = NULL;
     compiler->current_line = 1;
 
+    compiler->decl_list_tail = NULL;
+    compiler->func_list_tail = NULL;
+    compiler->cp_list = NULL;
+    compiler->cp_list_tail = NULL;
+
     cs_set_current_compiler(compiler);
 
     return compiler;

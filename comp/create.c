@@ -206,6 +206,7 @@ StatementList *cs_create_statement_list(Statement *stmt) {
 DeclarationList *cs_create_declaration_list(Declaration *decl) {
     DeclarationList *list = cs_malloc(sizeof(DeclarationList));
     list->next = NULL;
+    list->prev = NULL;
     list->decl = decl;
     return list;
 }
@@ -226,6 +227,7 @@ FunctionDeclarationList *cs_create_function_declaration_list(
     FunctionDeclaration *func) {
     FunctionDeclarationList *list = cs_malloc(sizeof(FunctionDeclarationList));
     list->next = NULL;
+    list->prev = NULL;
     list->func = func;
     return list;
 }

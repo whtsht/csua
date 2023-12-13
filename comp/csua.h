@@ -198,12 +198,25 @@ typedef struct StatementList_tag {
 typedef struct DeclarationList_tag {
     Declaration *decl;
     struct DeclarationList_tag *next;
+    struct DeclarationList_tag *prev;
 } DeclarationList;
 
 typedef struct FunctionDeclarationList_tag {
     FunctionDeclaration *func;
     struct FunctionDeclarationList_tag *next;
+    struct FunctionDeclarationList_tag *prev;
 } FunctionDeclarationList;
+
+typedef struct Checkpoint_tag {
+    BlockOperationType type;
+    DeclarationList *decl_list_ptr;
+    FunctionDeclarationList *fun_list_ptr;
+} Checkpoint;
+typedef struct CheckpointList_tag {
+    Checkpoint *checkpoint;
+    struct CheckpointList_tag *next;
+    struct CheckpointList_tag *prev;
+} CheckpointList;
 
 struct CS_Compiler_tag {
     MEM_Storage storage;
@@ -212,6 +225,11 @@ struct CS_Compiler_tag {
     DeclarationList *decl_list;
     FunctionDeclarationList *func_list;
     int current_line;
+
+    DeclarationList *decl_list_tail;
+    FunctionDeclarationList *func_list_tail;
+    CheckpointList *cp_list;
+    CheckpointList *cp_list_tail;
 };
 
 /* For Code Generation */
@@ -295,7 +313,9 @@ StatementList *cs_chain_statement_list(StatementList *stmt_list,
                                        Statement *stmt);
 FunctionDeclarationList *cs_chain_function_declaration_list(
     FunctionDeclarationList *func_list, FunctionDeclaration *func);
-Declaration *cs_search_decl_in_block();
+Declaration *cs_search_decl_in_block(const char *name,
+                                     DeclarationList *decl_list_border,
+                                     CheckpointList *cp_list_boarder);
 Declaration *cs_search_decl_global(const char *name);
 FunctionDeclaration *cs_search_function(const char *name);
 ParameterList *cs_chain_parameter_list(ParameterList *list, CS_BasicType type,
@@ -304,6 +324,8 @@ ArgumentList *cs_chain_argument_list(ArgumentList *list, Expression *expr);
 
 Statement *cs_create_block_begin_statement();
 Statement *cs_create_block_end_statement();
+
+void cs_record_checkpoint(BlockOperationType type);
 
 /* scanner.c */
 int get_current_line();
