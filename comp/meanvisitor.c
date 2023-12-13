@@ -73,11 +73,14 @@ static void leave_doubleexpr(Expression* expr, Visitor* visitor) {
 
 static void enter_identexpr(Expression* expr, Visitor* visitor) {}
 static void leave_identexpr(Expression* expr, Visitor* visitor) {
-    Declaration* decl = cs_search_decl_in_block();
+    CS_Compiler* compiler = cs_get_current_compiler();
+    Declaration* decl = cs_search_decl_in_block(expr->u.identifier.name,
+                                                compiler->decl_list_tail,
+                                                compiler->cp_list_tail);
     FunctionDeclaration* function = NULL;
-    if (!decl) {
-        decl = cs_search_decl_global(expr->u.identifier.name);
-    }
+    // if (!decl) {
+    //     decl = cs_search_decl_global(expr->u.identifier.name);
+    // }
 
     if (decl) {
         expr->type = decl->type;
@@ -513,11 +516,12 @@ static void leave_exprstmt(Statement* stmt, Visitor* visitor) {
 
 static void enter_declstmt(Statement* stmt, Visitor* visitor) {
     CS_Compiler* compiler = ((MeanVisitor*)visitor)->compiler;
-
-    Declaration* decl = cs_search_decl_in_block();
-    if (!decl) {
-        decl = cs_search_decl_global(stmt->u.declaration_s->name);
-    }
+    Declaration* decl = cs_search_decl_in_block(stmt->u.declaration_s->name,
+                                                compiler->decl_list_tail,
+                                                compiler->cp_list_tail);
+    // if (!decl) {
+    //     decl = cs_search_decl_global(stmt->u.declaration_s->name);
+    // }
 
     if (decl) {
         char message[50];
@@ -541,7 +545,22 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
     }
 }
 
-static void enter_blkopstmt(Statement* stmt, Visitor* visitor) {}
+static void enter_blkopstmt(Statement* stmt, Visitor* visitor) {
+    switch (stmt->u.blockop_s->type) {
+        case BLOCK_OPE_BEGIN: {
+            cs_record_checkpoint(BLOCK_OPE_BEGIN);
+            break;
+        }
+        case BLOCK_OPE_END: {
+            cs_record_checkpoint(BLOCK_OPE_END);
+            break;
+        }
+        default: {
+            fprintf(stderr, "unknown type in enter_exprstmt\n");
+            exit(1);
+        }
+    }
+}
 static void leave_blkopstmt(Statement* stmt, Visitor* visitor) {}
 
 MeanVisitor* create_mean_visitor() {
