@@ -145,10 +145,10 @@ static int count_stack_size(uint8_t* code, size_t len) {
     return st_size;
 }
 
-static void serialize(CS_Executable* exec) {
+static void serialize(CS_Executable* exec, char* filename) {
     FILE* fp;
 
-    if ((fp = fopen("../svm/a.csb", "wb")) == NULL) {
+    if ((fp = fopen(filename, "wb")) == NULL) {
         fprintf(stderr, "Error\n");
         exit(1);
     }
@@ -332,8 +332,8 @@ static void exec_disasm(CS_Executable* exec) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc == 1) {
-        printf("Usage ./meant dir/filename.cs\n");
+    if (argc != 3) {
+        printf("Usage ./cgent input.cs output.csb\n");
         return 1;
     }
     FILE* fin = fopen(argv[1], "r");
@@ -348,7 +348,7 @@ int main(int argc, char* argv[]) {
         // Code Generate
         CS_Executable* exec = code_generate(compiler);
         exec_disasm(exec);
-        serialize(exec);
+        serialize(exec, argv[2]);
         delete_executable(exec);
 
         fprintf(stderr, "\n--- Tree View ---\n");
