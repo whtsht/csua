@@ -402,6 +402,15 @@ static double pop_d(SVM_VirtualMachine *svm) {
     return svm->stack[svm->sp].dval;
 }
 
+static void pop_pt(SVM_VirtualMachine *svm) {
+    if (svm->pt_stack_count > 0) {
+        svm->sp = svm->pt_stack[--svm->pt_stack_count];
+    } else {
+        fprintf(stderr, "Error: Attempting to pop from an empty pointer stack.\n");
+        exit(1);
+    }
+}
+
 static void write_i(SVM_Value *head, uint32_t offset, uint32_t idx, int iv) {
     head[offset + idx].ival = iv;
 }
@@ -530,7 +539,11 @@ static void svm_run(SVM_VirtualMachine *svm) {
                 //                exit(1);
                 break;
             }
-            case SVM_POP_STACK_PT: {
+            case SVM_POP_STACK_PT:  //
+            {
+                uint16_t s_idx = fetch2(svm);
+                pop_pt(svm);
+                break;
             }
             case SVM_PUSH_STACK_PT: {  //
                 uint16_t s_idx = fetch2(svm);
