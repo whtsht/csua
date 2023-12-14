@@ -319,7 +319,7 @@ Declaration *cs_search_decl_in_block(const char *name,
 Declaration *cs_search_decl_global(const char *name);
 FunctionDeclaration *cs_search_func_in_block(
     const char *name, FunctionDeclarationList *decl_list_border,
-    CheckpointList *cp_list_boarder); // Added
+    CheckpointList *cp_list_boarder);  // Added
 FunctionDeclaration *cs_search_function(const char *name);
 ParameterList *cs_chain_parameter_list(ParameterList *list, CS_BasicType type,
                                        char *name);
@@ -327,6 +327,8 @@ ArgumentList *cs_chain_argument_list(ArgumentList *list, Expression *expr);
 
 Statement *cs_create_block_begin_statement();
 Statement *cs_create_block_end_statement();
+Statement *cs_create_if_begin_statement();
+Statement *cs_create_if_end_statement();
 
 void cs_record_checkpoint(BlockOperationType type);
 
