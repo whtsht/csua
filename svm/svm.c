@@ -780,7 +780,7 @@ static void svm_run(SVM_VirtualMachine *svm) {
             case SVM_GOTO: {
                 uint16_t s_idx = pop_i(svm);
                 if (s_idx) {
-                    // True
+                    // True->Run code in Block
                     fetch2(svm);  // skip label
                     break;
                 }
