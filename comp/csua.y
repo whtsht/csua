@@ -108,7 +108,7 @@ definition_or_statement
         ;
 
 if_statement
-        :if_begin_statement translation_unit if_end_statement block{ }
+        :IF if_begin_statement expression if_end_statement block{ }
         ;
 
 if_begin_statement
