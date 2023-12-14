@@ -1,4 +1,4 @@
-a.csb
+**/*.csb
 comp/cgent
 comp/codegentest.o
 comp/codegenvisitor.o
