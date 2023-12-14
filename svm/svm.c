@@ -427,10 +427,6 @@ static void write_global_d(SVM_VirtualMachine *svm, uint32_t idx, double dv) {
     write_d(svm->global_variables, 0, idx, dv);
 }
 
-<<<<<<< HEAD
-// }
-=======
->>>>>>> taichi_VM
 static double read_global_d(SVM_VirtualMachine *svm, uint32_t idx) {
     return read_d(svm->global_variables, 0, idx);
 }
