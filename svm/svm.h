@@ -1,20 +1,20 @@
 
 #ifndef _SVM_H_
 #define _SVM_H_
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct SVM_VirtualMachine_tag SVM_VirtualMachine;
 
-typedef enum
-{
+typedef enum {
     SVM_PUSH_INT = 1,
     SVM_PUSH_DOUBLE,
     SVM_PUSH_STACK_INT,
     SVM_PUSH_STACK_DOUBLE,
-    SVM_PUSH_STACK_PT, //
+    SVM_PUSH_STACK_PT,  //
     SVM_POP_STACK_INT,
     SVM_POP_STACK_DOUBLE,
-    SVM_POP_STACK_PT, //
+    SVM_POP_STACK_PT,  //
     SVM_PUSH_STATIC_INT,
     SVM_PUSH_STATIC_DOUBLE,
     SVM_POP_STATIC_INT,
@@ -56,57 +56,45 @@ typedef enum
     SVM_RETURN
 } SVM_Opcode;
 
-typedef enum
-{
+typedef enum {
     SVM_INT = 1,
     SVM_DOUBLE,
 } SVM_ConstantType;
 
-typedef struct
-{
+typedef struct {
     SVM_ConstantType type;
-    union
-    {
+    union {
         int c_int;
         double c_double;
     } u;
 } SVM_Constant;
 
-typedef union
-{
+typedef union {
     int ival;
     double dval;
 } SVM_Value;
 
-typedef struct
-{
+typedef struct {
     char *opname;
     char *parameter;
     char s_size;
 } OpcodeInfo;
 
-typedef enum
-{
-    NATIVE_FUNCTION,
-    CSUA_FUNCTION
-} FunctionType;
+typedef enum { NATIVE_FUNCTION, CSUA_FUNCTION } FunctionType;
 
 typedef SVM_Value (*SVM_NativeFunction)(SVM_VirtualMachine *svm,
                                         SVM_Value *values, int arg_count);
 
-typedef struct
-{
+typedef struct {
     FunctionType f_type;
     char *name;
     int arg_count;
-    union
-    {
+    union {
         SVM_NativeFunction n_func;
     } u;
 } SVM_Function;
 
-struct SVM_VirtualMachine_tag
-{
+struct SVM_VirtualMachine_tag {
     uint32_t constant_pool_count;
     SVM_Constant *constant_pool;
     uint32_t global_variable_count;
@@ -119,9 +107,9 @@ struct SVM_VirtualMachine_tag
     uint32_t stack_size;
     uint8_t *stack_value_type;
     SVM_Value *stack;
-    uint32_t pt_stack_size; //
-    uint8_t *pt_stack;      //
-    size_t pt_stack_count;  //
+    uint32_t pt_stack_size;  //
+    size_t *pt_stack;        //
+    size_t pt_stack_count;   //
     uint32_t pc;
     uint32_t sp;
 };
