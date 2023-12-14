@@ -265,6 +265,8 @@ static void exec_disasm(CS_Executable* exec) {
             case SVM_POP_STATIC_DOUBLE:
             case SVM_PUSH_INT:
             case SVM_POP_STATIC_INT:
+            case SVM_PUSH_STACK_PT:  //
+            case SVM_POP_STACK_PT:   //
             case SVM_PUSH_STATIC_INT:
             case SVM_PUSH_STATIC_DOUBLE:
             case SVM_PUSH_FUNCTION:

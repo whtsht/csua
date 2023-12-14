@@ -74,11 +74,14 @@ static void leave_doubleexpr(Expression* expr, Visitor* visitor) {
 
 static void enter_identexpr(Expression* expr, Visitor* visitor) {}
 static void leave_identexpr(Expression* expr, Visitor* visitor) {
-    Declaration* decl = cs_search_decl_in_block();
+    CS_Compiler* compiler = cs_get_current_compiler();
+    Declaration* decl = cs_search_decl_in_block(expr->u.identifier.name,
+                                                compiler->decl_list_tail,
+                                                compiler->cp_list_tail);
     FunctionDeclaration* function = NULL;
-    if (!decl) {
-        decl = cs_search_decl_global(expr->u.identifier.name);
-    }
+    // if (!decl) {
+    //     decl = cs_search_decl_global(expr->u.identifier.name);
+    // }
 
     if (decl) {
         expr->type = decl->type;
@@ -86,7 +89,10 @@ static void leave_identexpr(Expression* expr, Visitor* visitor) {
         expr->u.identifier.is_function = CS_FALSE;
         return;
     }
-    function = cs_search_function(expr->u.identifier.name);
+    // function = cs_search_function(expr->u.identifier.name);
+    function = cs_search_func_in_block(expr->u.identifier.name,
+                                       compiler->func_list_tail,
+                                       compiler->cp_list_tail);
     if (function) {
         expr->type = function->type;
         expr->u.identifier.u.function = function;
@@ -516,6 +522,21 @@ static void leave_exprstmt(Statement* stmt, Visitor* visitor) {
 
 static void enter_declstmt(Statement* stmt, Visitor* visitor) {
     CS_Compiler* compiler = ((MeanVisitor*)visitor)->compiler;
+    Declaration* decl = cs_search_decl_in_block(stmt->u.declaration_s->name,
+                                                compiler->decl_list_tail,
+                                                compiler->cp_list_tail);
+    // if (!decl) {
+    //     decl = cs_search_decl_global(stmt->u.declaration_s->name);
+    // }
+
+    if (decl) {
+        char message[50];
+        sprintf(message, "%d: Already defind identifier %s", stmt->line_number,
+                stmt->u.declaration_s->name);
+        add_check_log(message, visitor);
+        return;
+    }
+
     compiler->decl_list =
         cs_chain_declaration(compiler->decl_list, stmt->u.declaration_s);
     //    fprintf(stderr, "enter declstmt\n");
@@ -529,6 +550,24 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
             assignment_type_check(decl->type, decl->initializer, visitor);
     }
 }
+
+static void enter_blkopstmt(Statement* stmt, Visitor* visitor) {
+    switch (stmt->u.blockop_s->type) {
+        case BLOCK_OPE_BEGIN: {
+            cs_record_checkpoint(BLOCK_OPE_BEGIN);
+            break;
+        }
+        case BLOCK_OPE_END: {
+            cs_record_checkpoint(BLOCK_OPE_END);
+            break;
+        }
+        default: {
+            fprintf(stderr, "unknown type in enter_exprstmt\n");
+            exit(1);
+        }
+    }
+}
+static void leave_blkopstmt(Statement* stmt, Visitor* visitor) {}
 
 MeanVisitor* create_mean_visitor() {
     visit_expr* enter_expr_list;
@@ -580,6 +619,7 @@ MeanVisitor* create_mean_visitor() {
 
     enter_stmt_list[EXPRESSION_STATEMENT] = enter_exprstmt;
     enter_stmt_list[DECLARATION_STATEMENT] = enter_declstmt;
+    enter_stmt_list[BLOCKOPERATION_STATEMENT] = enter_blkopstmt;
 
     leave_expr_list[BOOLEAN_EXPRESSION] = leave_boolexpr;
     leave_expr_list[INT_EXPRESSION] = leave_intexpr;
@@ -609,6 +649,7 @@ MeanVisitor* create_mean_visitor() {
 
     leave_stmt_list[EXPRESSION_STATEMENT] = leave_exprstmt;
     leave_stmt_list[DECLARATION_STATEMENT] = leave_declstmt;
+    leave_stmt_list[BLOCKOPERATION_STATEMENT] = leave_blkopstmt;
 
     ((Visitor*)visitor)->enter_expr_list = enter_expr_list;
     ((Visitor*)visitor)->leave_expr_list = leave_expr_list;

@@ -355,6 +355,15 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
     fprintf(stderr, "leave declstmt\n");
 }
 
+static void enter_blkopstmt(Statement* stmt, Visitor* visitor){
+    print_depth();
+    fprintf(stderr, "enter blkopstmt\n");
+}
+static void leave_blkopstmt(Statement* stmt, Visitor* visitor){
+    print_depth();
+    fprintf(stderr, "leave blkopstmt\n");
+}
+
 Visitor* create_treeview_visitor() {
     visit_expr* enter_expr_list;
     visit_expr* leave_expr_list;
@@ -398,6 +407,7 @@ Visitor* create_treeview_visitor() {
 
     enter_stmt_list[EXPRESSION_STATEMENT] = enter_exprstmt;
     enter_stmt_list[DECLARATION_STATEMENT] = enter_declstmt;
+    enter_stmt_list[BLOCKOPERATION_STATEMENT] = enter_blkopstmt;
 
     leave_expr_list[BOOLEAN_EXPRESSION] = leave_boolexpr;
     leave_expr_list[INT_EXPRESSION] = leave_intexpr;
@@ -427,6 +437,7 @@ Visitor* create_treeview_visitor() {
 
     leave_stmt_list[EXPRESSION_STATEMENT] = leave_exprstmt;
     leave_stmt_list[DECLARATION_STATEMENT] = leave_declstmt;
+    leave_stmt_list[BLOCKOPERATION_STATEMENT] = leave_blkopstmt;
 
     visitor->enter_expr_list = enter_expr_list;
     visitor->leave_expr_list = leave_expr_list;
