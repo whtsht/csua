@@ -132,11 +132,11 @@ static void leave_identexpr(Expression* expr, Visitor* visitor) {
     CodegenVisitor* c_visitor = (CodegenVisitor*)visitor;
     switch (c_visitor->vi_state) {
         case VISIT_NORMAL: {
-            //            fprintf(stderr, "push value to stack\n");
+            // fprintf(stderr, "push value to stack: ");
             if (expr->u.identifier.is_function) {
-                //                printf("name=%s, index=%d\n",
-                //                        expr->u.identifier.u.function->name,
-                //                        expr->u.identifier.u.function->index);
+                // printf("name=%s, index=%d\n",
+                //        expr->u.identifier.u.function->name,
+                //        expr->u.identifier.u.function->index);
                 gen_byte_code(c_visitor, SVM_PUSH_FUNCTION,
                               expr->u.identifier.u.function->index);
             } else {
@@ -695,8 +695,8 @@ static void notify_assignexpr(Expression* expr, Visitor* visitor) {
             break;
         }
         case ASSIGN_PLUS_ONE:
-        defualt : {
-            fprintf(stderr, "unsuuuport4ed assign operator\n");
+        defualt: {
+            fprintf(stderr, "unsupported assign operator\n");
             exit(1);
         }
     }
@@ -745,12 +745,22 @@ static void enter_declstmt(Statement* stmt, Visitor* visitor) {
     //    fprintf(stderr, "enter declstmt name=%s, type=%s:\n",
     //            stmt->u.declaration_s->name,
     //            get_type_name(stmt->u.declaration_s->type->basic_type));
+
+    //? 必要？
+    // CS_Compiler* compiler = cs_get_current_compiler();
+    // if (!compiler->decl_list_tail)
+    //     compiler->decl_list_tail = compiler->decl_list_tail->next;
 }
 
 static void leave_declstmt(Statement* stmt, Visitor* visitor) {
     //    fprintf(stderr, "leave declstmt\n");
     if (stmt->u.declaration_s->initializer) {
-        Declaration* decl = cs_search_decl_in_block();  // dummy
+        Declaration* decl;
+        //? cs_search_decl_in_blockを適用する必要あり？
+        // CS_Compiler* compiler = cs_get_current_compiler();
+        // decl = cs_search_decl_in_block(stmt->u.declaration_s->name,
+        //                                compiler->decl_list_tail,
+        //                                compiler->cp_list_tail);
         if (!decl) {
             decl = cs_search_decl_global(stmt->u.declaration_s->name);
 
@@ -773,6 +783,30 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
             }
         }
     }
+}
+
+static void enter_blkopstmt(Statement* stmt, Visitor* visitor) {}
+
+static void leave_blkopstmt(Statement* stmt, Visitor* visitor) {
+    switch (stmt->u.blockop_s->type) {
+        case BLOCK_OPE_BEGIN: {
+            gen_byte_code((CodegenVisitor*)visitor, SVM_PUSH_STACK_PT);
+            break;
+        }
+        case BLOCK_OPE_END: {
+            gen_byte_code((CodegenVisitor*)visitor, SVM_POP_STACK_PT);
+            break;
+        }
+        default: {
+            fprintf(stderr, "unknown type in leave_blkopstmt\n");
+            exit(1);
+        }
+    }
+
+    // cs_search_decl_in_blockで到達ノードまでのチェックポイントを更新するためにこのコードを追加した
+    CS_Compiler* compiler = cs_get_current_compiler();
+    if (!compiler->cp_list_tail)
+        compiler->cp_list_tail = compiler->cp_list_tail->next;
 }
 
 CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
@@ -848,6 +882,7 @@ CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
 
     enter_stmt_list[EXPRESSION_STATEMENT] = enter_exprstmt;
     enter_stmt_list[DECLARATION_STATEMENT] = enter_declstmt;
+    enter_stmt_list[BLOCKOPERATION_STATEMENT] = enter_blkopstmt;
 
     notify_expr_list[ASSIGN_EXPRESSION] = notify_assignexpr;
 
@@ -879,6 +914,7 @@ CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
 
     leave_stmt_list[EXPRESSION_STATEMENT] = leave_exprstmt;
     leave_stmt_list[DECLARATION_STATEMENT] = leave_declstmt;
+    leave_stmt_list[BLOCKOPERATION_STATEMENT] = leave_blkopstmt;
 
     ((Visitor*)visitor)->enter_expr_list = enter_expr_list;
     ((Visitor*)visitor)->leave_expr_list = leave_expr_list;

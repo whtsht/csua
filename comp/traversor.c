@@ -42,6 +42,11 @@ static void traverse_stmt_children(Statement* stmt, Visitor* visitor) {
             traverse_expr(stmt->u.declaration_s->initializer, visitor);
             break;
         }
+        case BLOCKOPERATION_STATEMENT: {
+            // BLOCKOPERATION_STATEMENTに子が存在することはないのでトラバースしない
+            // fprintf(stderr, "traversed: BLOCKOPERATION_STATEMENT\n");
+            break;
+        }
         default: {
             fprintf(stderr, "No such stmt->type %d in traverse_stmt_children\n",
                     stmt->type);
