@@ -53,7 +53,9 @@ typedef enum {
     SVM_POP,
     SVM_PUSH_FUNCTION,
     SVM_INVOKE,
-    SVM_RETURN
+    SVM_RETURN,
+    SVM_GOTO,
+    SVM_LABEL
 } SVM_Opcode;
 
 typedef enum {
