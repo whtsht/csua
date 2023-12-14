@@ -1,6 +1,7 @@
 
 #ifndef _SVM_H_
 #define _SVM_H_
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct SVM_VirtualMachine_tag SVM_VirtualMachine;
@@ -106,6 +107,9 @@ struct SVM_VirtualMachine_tag {
     uint32_t stack_size;
     uint8_t *stack_value_type;
     SVM_Value *stack;
+    uint32_t pt_stack_size;  //
+    size_t *pt_stack;        //
+    size_t pt_stack_count;   //
     uint32_t pc;
     uint32_t sp;
 };

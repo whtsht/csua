@@ -11,7 +11,7 @@
 
 #include "../memory/MEM.h"
 
-static int read_int(uint8_t** p) {
+static int read_int(uint8_t **p) {
     uint8_t v1 = **p;
     (*p)++;
     uint8_t v2 = **p;
@@ -24,7 +24,7 @@ static int read_int(uint8_t** p) {
     return v;
 }
 
-static double read_double(uint8_t** p) {
+static double read_double(uint8_t **p) {
     uint8_t v1 = **p;
     (*p)++;
     uint8_t v2 = **p;
@@ -45,17 +45,17 @@ static double read_double(uint8_t** p) {
     long lv = (long)((long)v1 << 56 | (long)v2 << 48 | (long)v3 << 40 |
                      (long)v4 << 32 | (long)v5 << 24 | (long)v6 << 16 |
                      (long)v7 << 8 | (long)v8);
-    double* pdv = (double*)&lv;
+    double *pdv = (double *)&lv;
     return *pdv;
 }
 
-static uint8_t read_byte(uint8_t** p) {
+static uint8_t read_byte(uint8_t **p) {
     uint8_t v = **p;
     (*p)++;
     return v;
 }
 
-static void parse_header(uint8_t** p) {
+static void parse_header(uint8_t **p) {
     for (int i = 0; i < 8; ++i) {
         //        printf("%c ", (char)(**p));
         (*p)++;
@@ -71,14 +71,14 @@ typedef struct {
 
 } DInfo;
 
-static void dump(DInfo* info) {
+static void dump(DInfo *info) {
     fprintf(stderr, "%s", info->s_buf);
     fprintf(stderr, "   %s\n", info->row_buf);
     info->s_index = 0;
     info->r_index = 0;
 }
 
-static void add_opname(DInfo* info, const char* str) {
+static void add_opname(DInfo *info, const char *str) {
     int len = strlen(str);
     strncpy(&info->s_buf[info->s_index], str, len);
     info->s_index += len;
@@ -88,25 +88,25 @@ static void add_opname(DInfo* info, const char* str) {
     info->s_buf[info->s_index] = 0;
 }
 
-static void add_padding(DInfo* info) {
+static void add_padding(DInfo *info) {
     for (int i = 0; i < 4; ++i, ++info->s_index)
         info->s_buf[info->s_index] = ' ';
 }
 
-static void add_uint16(DInfo* info, const uint16_t iv) {
+static void add_uint16(DInfo *info, const uint16_t iv) {
     char buf[6] = {};
     sprintf(buf, "%04x", iv);
     strncpy(&info->s_buf[info->s_index], buf, 4);
 }
 
-static void add_rowcode(DInfo* info, uint8_t op) {
+static void add_rowcode(DInfo *info, uint8_t op) {
     //    printf("add row %02x\n", op);
     sprintf(&info->row_buf[info->r_index], "%02x", op);
     info->r_index += 2;
     info->row_buf[info->r_index] = 0;
 }
 
-static void disasm(SVM_VirtualMachine* svm) {
+static void disasm(SVM_VirtualMachine *svm) {
     printf("-- constant pool --\n");
     printf("constant_count = %d\n", svm->constant_pool_count);
     for (int i = 0; i < svm->constant_pool_count; ++i) {
@@ -146,11 +146,11 @@ static void disasm(SVM_VirtualMachine* svm) {
     }
     printf("\n-- code --\n");
 
-    uint8_t* p = svm->code;
+    uint8_t *p = svm->code;
     DInfo dinfo = {0};
     int param_len = 0;
     for (int i = 0; i < svm->code_size; ++i, p++) {
-        OpcodeInfo* oinfo = &svm_opcode_info[*p];
+        OpcodeInfo *oinfo = &svm_opcode_info[*p];
         add_rowcode(&dinfo, *p);
         switch (*p) {
             case SVM_CAST_DOUBLE_TO_INT:
@@ -162,6 +162,8 @@ static void disasm(SVM_VirtualMachine* svm) {
             case SVM_PUSH_STATIC_INT:
             case SVM_PUSH_STATIC_DOUBLE:
             case SVM_PUSH_FUNCTION:
+            case SVM_PUSH_STACK_PT:  //
+            case SVM_POP_STACK_PT:   //
             case SVM_POP:
             case SVM_ADD_INT:
             case SVM_ADD_DOUBLE:
@@ -227,13 +229,13 @@ static void disasm(SVM_VirtualMachine* svm) {
     }
 }
 
-static void parse(uint8_t* buf, SVM_VirtualMachine* svm) {
-    uint8_t* pos = buf;
+static void parse(uint8_t *buf, SVM_VirtualMachine *svm) {
+    uint8_t *pos = buf;
     parse_header(&pos);
     svm->constant_pool_count = read_int(&pos);
     //    printf("constant_pool_count = %d\n", svm->constant_pool_count);
-    svm->constant_pool = (SVM_Constant*)MEM_malloc(sizeof(SVM_Constant) *
-                                                   svm->constant_pool_count);
+    svm->constant_pool = (SVM_Constant *)MEM_malloc(sizeof(SVM_Constant) *
+                                                    svm->constant_pool_count);
 
     uint8_t type;
     for (int i = 0; i < svm->constant_pool_count; ++i) {
@@ -261,9 +263,9 @@ static void parse(uint8_t* buf, SVM_VirtualMachine* svm) {
 
     svm->global_variable_count = read_int(&pos);
     svm->global_variables =
-        (SVM_Value*)MEM_malloc(sizeof(SVM_Value) * svm->global_variable_count);
+        (SVM_Value *)MEM_malloc(sizeof(SVM_Value) * svm->global_variable_count);
     svm->global_variable_types =
-        (uint8_t*)MEM_malloc(sizeof(uint8_t) * svm->global_variable_count);
+        (uint8_t *)MEM_malloc(sizeof(uint8_t) * svm->global_variable_count);
     //    printf("global_variable_count = %d\n", svm->global_variable_count);
     for (int i = 0; i < svm->global_variable_count; ++i) {
         //        uint8_t type = read_byte(&pos);
@@ -277,20 +279,20 @@ static void parse(uint8_t* buf, SVM_VirtualMachine* svm) {
                 //                printf("DOUBLE\n");
                 break;
             }
-            defulat : { break; }
+            defulat: { break; }
         }
     }
 
     svm->code_size = read_int(&pos);
-    svm->code = (uint8_t*)MEM_malloc(svm->code_size);
+    svm->code = (uint8_t *)MEM_malloc(svm->code_size);
     memcpy(svm->code, pos, svm->code_size);
     pos += svm->code_size;
     svm->stack_size = read_int(&pos);
 }
 
-static SVM_VirtualMachine* svm_create() {
-    SVM_VirtualMachine* svm =
-        (SVM_VirtualMachine*)MEM_malloc(sizeof(SVM_VirtualMachine));
+static SVM_VirtualMachine *svm_create() {
+    SVM_VirtualMachine *svm =
+        (SVM_VirtualMachine *)MEM_malloc(sizeof(SVM_VirtualMachine));
     svm->constant_pool = NULL;
     svm->global_variables = NULL;
     svm->global_variable_types = NULL;
@@ -302,13 +304,16 @@ static SVM_VirtualMachine* svm_create() {
     svm->functions = NULL;
     svm->stack = NULL;
     svm->stack_size = 0;
+    svm->pt_stack_size = 100;  //
     svm->stack_value_type = NULL;
+    svm->pt_stack_count = 0;
+    svm->pt_stack = NULL;  //
     svm->pc = 0;
     svm->sp = 0;
     return svm;
 }
 
-static void svm_delete(SVM_VirtualMachine* svm) {
+static void svm_delete(SVM_VirtualMachine *svm) {
     if (!svm) return;
     if (svm->code) {
         MEM_free(svm->code);
@@ -331,14 +336,17 @@ static void svm_delete(SVM_VirtualMachine* svm) {
     if (svm->stack_value_type) {
         MEM_free(svm->stack_value_type);
     }
+    if (svm->pt_stack) {
+        MEM_free(svm->pt_stack);
+    }
 
     MEM_free(svm);
 }
 
-void svm_add_native_function(SVM_VirtualMachine* svm,
-                             SVM_NativeFunction native_f, char* name,
+void svm_add_native_function(SVM_VirtualMachine *svm,
+                             SVM_NativeFunction native_f, char *name,
                              int arg_count) {
-    svm->functions = (SVM_Function*)MEM_realloc(
+    svm->functions = (SVM_Function *)MEM_realloc(
         svm->functions, sizeof(SVM_Function) * (svm->function_count + 1));
     svm->functions[svm->function_count].f_type = NATIVE_FUNCTION;
     svm->functions[svm->function_count].name = name;
@@ -347,81 +355,108 @@ void svm_add_native_function(SVM_VirtualMachine* svm,
     svm->function_count++;
 }
 
-static uint8_t fetch(SVM_VirtualMachine* svm) { return svm->code[svm->pc++]; }
+static uint8_t fetch(SVM_VirtualMachine *svm) { return svm->code[svm->pc++]; }
 
-static uint16_t fetch2(SVM_VirtualMachine* svm) {
+static uint16_t fetch2(SVM_VirtualMachine *svm) {
     uint8_t v1 = fetch(svm);
     return (v1 << 8) | fetch(svm);
 }
 
-static SVM_Constant* read_static(SVM_VirtualMachine* svm, uint16_t idx) {
+static SVM_Constant *read_static(SVM_VirtualMachine *svm, uint16_t idx) {
     return &svm->constant_pool[idx];
 }
 
-static int read_static_int(SVM_VirtualMachine* svm, uint16_t idx) {
+static int read_static_int(SVM_VirtualMachine *svm, uint16_t idx) {
     return read_static(svm, idx)->u.c_int;
 }
 
-static double read_static_double(SVM_VirtualMachine* svm, uint16_t idx) {
+static double read_static_double(SVM_VirtualMachine *svm, uint16_t idx) {
     return read_static(svm, idx)->u.c_double;
 }
 
-static void push_i(SVM_VirtualMachine* svm, int iv) {
+static void push_i(SVM_VirtualMachine *svm, int iv) {
     svm->stack[svm->sp].ival = iv;
     svm->stack_value_type[svm->sp] = SVM_INT;
     svm->sp++;
 }
 
-static void push_d(SVM_VirtualMachine* svm, double dv) {
+static void push_d(SVM_VirtualMachine *svm, double dv) {
     svm->stack[svm->sp].dval = dv;
     svm->stack_value_type[svm->sp] = SVM_DOUBLE;
     svm->sp++;
 }
 
-static int pop_i(SVM_VirtualMachine* svm) {
+static void push_pt(SVM_VirtualMachine *svm) {
+    if (svm->pt_stack_count < svm->stack_size) {
+        svm->pt_stack[svm->pt_stack_count] = svm->sp;
+        svm->pt_stack_count++;
+        svm->sp++;
+    } else {
+        fprintf(stderr,
+                "Error: Segmentation falut happend to push pointer stack.\n");
+        exit(1);
+    }
+}
+
+static int pop_i(SVM_VirtualMachine *svm) {
     --svm->sp;
     return svm->stack[svm->sp].ival;
 }
 
-static double pop_d(SVM_VirtualMachine* svm) {
+static double pop_d(SVM_VirtualMachine *svm) {
     --svm->sp;
     return svm->stack[svm->sp].dval;
 }
 
-static void write_i(SVM_Value* head, uint32_t offset, uint32_t idx, int iv) {
+static void pop_pt(SVM_VirtualMachine *svm) {
+    if (svm->pt_stack_count > 0) {
+        svm->sp = svm->pt_stack[--svm->pt_stack_count];
+    } else {
+        fprintf(stderr,
+                "Error: Attempting to pop from an empty pointer stack.\n");
+        exit(1);
+    }
+}
+
+static void write_i(SVM_Value *head, uint32_t offset, uint32_t idx, int iv) {
     head[offset + idx].ival = iv;
 }
-static int read_i(SVM_Value* head, uint32_t offset, uint32_t idx) {
+static int read_i(SVM_Value *head, uint32_t offset, uint32_t idx) {
     return head[offset + idx].ival;
 }
 
-static void write_d(SVM_Value* head, uint32_t offset, uint32_t idx, double dv) {
+static void write_d(SVM_Value *head, uint32_t offset, uint32_t idx, double dv) {
     head[offset + idx].dval = dv;
 }
-static double read_d(SVM_Value* head, uint32_t offset, uint32_t idx) {
+static double read_d(SVM_Value *head, uint32_t offset, uint32_t idx) {
     return head[offset + idx].dval;
 }
 
-static void write_global_i(SVM_VirtualMachine* svm, uint32_t idx, int iv) {
+static void write_global_i(SVM_VirtualMachine *svm, uint32_t idx, int iv) {
     write_i(svm->global_variables, 0, idx, iv);
 }
-static int read_global_i(SVM_VirtualMachine* svm, uint32_t idx) {
+static int read_global_i(SVM_VirtualMachine *svm, uint32_t idx) {
     return read_i(svm->global_variables, 0, idx);
 }
 
-static void write_global_d(SVM_VirtualMachine* svm, uint32_t idx, double dv) {
+static void write_global_d(SVM_VirtualMachine *svm, uint32_t idx, double dv) {
     write_d(svm->global_variables, 0, idx, dv);
 }
-static double read_global_d(SVM_VirtualMachine* svm, uint32_t idx) {
+
+static double read_global_d(SVM_VirtualMachine *svm, uint32_t idx) {
     return read_d(svm->global_variables, 0, idx);
 }
 
-static void init_svm(SVM_VirtualMachine* svm) {
-    svm->stack = (SVM_Value*)MEM_malloc(sizeof(SVM_Value) * svm->stack_size);
+static void init_svm(SVM_VirtualMachine *svm) {
+    svm->stack = (SVM_Value *)MEM_malloc(sizeof(SVM_Value) * svm->stack_size);
     svm->stack_value_type =
-        (uint8_t*)MEM_malloc(sizeof(uint8_t) * svm->stack_size);
+        (uint8_t *)MEM_malloc(sizeof(uint8_t) * svm->stack_size);
     svm->pc = 0;
     svm->sp = 0;
+    svm->pt_stack_count = 0;
+
+    // TODO use size from header
+    svm->pt_stack = (size_t *)MEM_malloc(sizeof(size_t) * 300);
 
     for (int i = 0; i < svm->global_variable_count; ++i) {
         switch (svm->global_variable_types[i]) {
@@ -441,7 +476,7 @@ static void init_svm(SVM_VirtualMachine* svm) {
     }
 }
 
-static void show_status(SVM_VirtualMachine* svm) {
+static void show_status(SVM_VirtualMachine *svm) {
     printf("\n< show SVM status >\n");
     printf("-- global variable ---\n");
     for (int i = 0; i < svm->global_variable_count; ++i) {
@@ -479,9 +514,8 @@ static void show_status(SVM_VirtualMachine* svm) {
     }
 }
 
-static void svm_run(SVM_VirtualMachine* svm) {
+static void svm_run(SVM_VirtualMachine *svm) {
     bool running = true;
-
     uint8_t op = 0;
     while (running) {
         switch (op = fetch(svm)) {
@@ -510,6 +544,17 @@ static void svm_run(SVM_VirtualMachine* svm) {
                 double dv = pop_d(svm);
                 write_global_d(svm, s_idx, dv);
                 //                exit(1);
+                break;
+            }
+            case SVM_POP_STACK_PT:  //
+            {
+                uint16_t s_idx = fetch2(svm);
+                pop_pt(svm);
+                break;
+            }
+            case SVM_PUSH_STACK_PT: {  //
+                uint16_t s_idx = fetch2(svm);
+                push_pt(svm);
                 break;
             }
             case SVM_PUSH_STATIC_INT: {
@@ -746,7 +791,7 @@ static void svm_run(SVM_VirtualMachine* svm) {
     show_status(svm);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     // for test
     bool disasm_mode = false;
     int file_idx = 1;
@@ -765,10 +810,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    SVM_VirtualMachine* svm = svm_create();
+    SVM_VirtualMachine *svm = svm_create();
     struct stat st;
     stat(argv[file_idx], &st);
-    uint8_t* buf = (uint8_t*)malloc(st.st_size);
+    uint8_t *buf = (uint8_t *)malloc(st.st_size);
     int fp = open(argv[file_idx], O_RDONLY);
     read(fp, buf, st.st_size);
     parse(buf, svm);
