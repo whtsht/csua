@@ -548,12 +548,10 @@ static void svm_run(SVM_VirtualMachine *svm) {
             }
             case SVM_POP_STACK_PT:  //
             {
-                uint16_t s_idx = fetch2(svm);
                 pop_pt(svm);
                 break;
             }
             case SVM_PUSH_STACK_PT: {  //
-                uint16_t s_idx = fetch2(svm);
                 push_pt(svm);
                 break;
             }
