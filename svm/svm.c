@@ -387,9 +387,15 @@ static void push_d(SVM_VirtualMachine *svm, double dv) {
 }
 
 static void push_pt(SVM_VirtualMachine *svm) {
-    svm->pt_stack[svm->pt_stack_count] = svm->sp;
-    svm->pt_stack_count++;
-    svm->sp++;
+    if (svm->pt_stack_count < svm->stack_size) {
+        svm->pt_stack[svm->pt_stack_count] = svm->sp;
+        svm->pt_stack_count++;
+        svm->sp++;
+    } else {
+        fprintf(stderr,
+                "Error: Segmentation falut happend to push pointer stack.\n");
+        exit(1);
+    }
 }
 
 static int pop_i(SVM_VirtualMachine *svm) {
@@ -406,7 +412,8 @@ static void pop_pt(SVM_VirtualMachine *svm) {
     if (svm->pt_stack_count > 0) {
         svm->sp = svm->pt_stack[--svm->pt_stack_count];
     } else {
-        fprintf(stderr, "Error: Attempting to pop from an empty pointer stack.\n");
+        fprintf(stderr,
+                "Error: Attempting to pop from an empty pointer stack.\n");
         exit(1);
     }
 }
