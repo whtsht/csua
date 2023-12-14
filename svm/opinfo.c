@@ -1,9 +1,8 @@
-#include <stdint.h>
-
 #include "svm.h"
 
 OpcodeInfo svm_opcode_info[] = {
     {"dummy", "", 0},
+
     {"push_int", "i", 1},
     {"push_double", "i", 1},
     {"push_stack_int", "i", 1},
