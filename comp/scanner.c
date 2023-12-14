@@ -119,6 +119,7 @@ retry:
         case '\t': {  // skip space and tab
             goto retry;
         }
+        case '\r':
         case '\n': {  // ignore return and count the number
             increment_line();
             goto retry;
