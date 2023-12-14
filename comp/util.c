@@ -45,7 +45,8 @@ StatementList* cs_chain_statement_list(StatementList* stmt_list,
     if (stmt_list == NULL) {
         return nstmt_list;
     }
-    for (p = stmt_list; p->next; p = p->next);
+    for (p = stmt_list; p->next; p = p->next)
+        ;
     p->next = nstmt_list;
 
     return stmt_list;
@@ -85,7 +86,8 @@ ParameterList* cs_chain_parameter_list(ParameterList* list, CS_BasicType type,
                                        char* name) {
     ParameterList* p = NULL;
     ParameterList* current = cs_create_parameter(type, name);
-    for (p = list; p->next; p = p->next);
+    for (p = list; p->next; p = p->next)
+        ;
     p->next = current;
     return list;
 }
@@ -93,7 +95,8 @@ ParameterList* cs_chain_parameter_list(ParameterList* list, CS_BasicType type,
 ArgumentList* cs_chain_argument_list(ArgumentList* list, Expression* expr) {
     ArgumentList* p;
     ArgumentList* current = cs_create_argument(expr);
-    for (p = list; p->next; p = p->next);
+    for (p = list; p->next; p = p->next)
+        ;
     p->next = current;
     return list;
 }
@@ -118,7 +121,8 @@ Declaration* cs_search_decl_in_block(const char* name,
 
     // スキップすべき最初のCheckpoint(BLOCK_OPE_END:'}')を見つけるまでCheckpointStackを逆順にたどる
     for (; cp_list != NULL && cp_list->checkpoint->type == BLOCK_OPE_BEGIN;
-         cp_list = cp_list->prev);
+         cp_list = cp_list->prev)
+        ;
 
     DeclarationList* list = decl_list_border;
 
@@ -155,6 +159,41 @@ static FunctionDeclaration* search_function_from_list(
         if (!strcmp(list->func->name, name)) {
             return list->func;
         }
+    }
+    return NULL;
+}
+
+FunctionDeclaration* cs_search_func_in_block(
+    const char* name, FunctionDeclarationList* func_decl_list_border,
+    CheckpointList* cp_list_boarder) {
+    CS_Compiler* compiler = cs_get_current_compiler();
+    CheckpointList* cp_list = cp_list_boarder;
+
+    // スキップすべき最初のCheckpoint(BLOCK_OPE_END:'}')を見つけるまでCheckpointStackを逆順にたどる
+    for (; cp_list != NULL && cp_list->checkpoint->type == BLOCK_OPE_BEGIN;
+         cp_list = cp_list->prev)
+        ;
+
+    FunctionDeclarationList* list = func_decl_list_border;
+
+    while (list != NULL) {
+        if (cp_list != NULL && list == cp_list->checkpoint->fun_list_ptr) {
+            fprintf(stderr, "Skip block: [decl=%p->%p]\n",
+                    cp_list->checkpoint->fun_list_ptr,
+                    cp_list->prev->checkpoint->fun_list_ptr);
+            // Checkpoint( BLOCK_OPE_END:'}' )に到達
+            // 次のチェックポイント( BLOCK_OPE_BEGIN:'{' )までlistをスキップする
+            list = cp_list->prev->checkpoint->fun_list_ptr;
+            // Checkpointを更新
+            cp_list = cp_list->prev->prev;
+            continue;
+        }
+
+        if (strcmp(list->func->name, name) == 0) {
+            return list->func;
+        }
+
+        list = list->prev;
     }
     return NULL;
 }
