@@ -777,6 +777,49 @@ static void svm_run(SVM_VirtualMachine *svm) {
                 pop_i(svm);
                 break;
             }
+            case SVM_GOTO: {
+                uint16_t s_idx = pop_i(svm);
+                if (s_idx) {
+                    // False
+                    break;
+                }
+                // True
+                uint16_t s_idx_goto = fetch2(svm);
+
+                // skip until LABEL
+                while (running) {
+                    switch (op = fetch(svm)) {
+                        case SVM_LABEL: {
+                            uint16_t s_idx_label = fetch2(svm);
+                            if (s_idx_goto == s_idx_label) {
+                                goto END_WHILE;
+                            }
+                            break;
+                        }
+                        default: {
+                            OpcodeInfo *_oinfo = &svm_opcode_info[op];
+                            if (_oinfo->s_size >= 1) {
+                                int fetch_size = _oinfo->s_size;
+                                for (; fetch_size > 0; fetch_size--) {
+                                    fetch2(svm);  // trash
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    running = svm->pc < svm->code_size;
+                }
+                fprintf(stderr, "cannot exit from if in svm_run\n");
+                show_status(svm);
+                exit(1);
+            END_WHILE:
+                break;
+            }
+            case SVM_LABEL: {
+                // skip label
+                fetch2(svm);
+                break;
+            }
             default: {
                 fprintf(stderr, "unknown opcode: %02x in svm_run\n", op);
                 show_status(svm);
