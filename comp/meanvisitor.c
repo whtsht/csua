@@ -41,7 +41,8 @@ static void add_check_log(const char* str, Visitor* visitor) {
         ((MeanVisitor*)visitor)->check_log = log;
         return;
     } else {
-        for (p = ((MeanVisitor*)visitor)->check_log; p->next; p = p->next);
+        for (p = ((MeanVisitor*)visitor)->check_log; p->next; p = p->next)
+            ;
         p->next = log;
     }
 }
@@ -88,7 +89,10 @@ static void leave_identexpr(Expression* expr, Visitor* visitor) {
         expr->u.identifier.is_function = CS_FALSE;
         return;
     }
-    function = cs_search_function(expr->u.identifier.name);
+    // function = cs_search_function(expr->u.identifier.name);
+    function = cs_search_func_in_block(expr->u.identifier.name,
+                                       compiler->func_list_tail,
+                                       compiler->cp_list_tail);
     if (function) {
         expr->type = function->type;
         expr->u.identifier.u.function = function;
@@ -460,8 +464,10 @@ static void leave_funccallexpr(Expression* expr, Visitor* visitor) {
         ParameterList* params = func_dec->param;
         ArgumentList* args = f_expr->argument;
         int params_count, args_count;
-        for (params_count = 0; params; params = params->next, ++params_count);
-        for (args_count = 0; args; args = args->next, ++args_count);
+        for (params_count = 0; params; params = params->next, ++params_count)
+            ;
+        for (args_count = 0; args; args = args->next, ++args_count)
+            ;
         //        printf("params_count = %d\n", params_count);
         //        printf("args_count   = %d\n", args_count);
 
