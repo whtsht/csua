@@ -257,12 +257,17 @@ Statement *cs_create_block_end_statement() {
 
 Statement *cs_create_if_begin_statement(Expression *expr) {
     Statement *stmt = cs_create_statement(IF_STATEMENT);
-    printf("create if begin stmt\n");
+
+    stmt->u.ifop_s = cs_malloc(sizeof(IfOperation));
+    stmt->u.ifop_s->expression_s = expr;
+    stmt->u.ifop_s->op_kind = IF_OP_ENTER;
+
     return stmt;
 }
 
 Statement *cs_create_if_end_statement() {
     Statement *stmt = cs_create_statement(IF_STATEMENT);
-    printf("create if end stmt");
+    stmt->u.ifop_s = cs_malloc(sizeof(IfOperation));
+    stmt->u.ifop_s->op_kind = IF_OP_LEAVE;
     return stmt;
 }

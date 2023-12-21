@@ -48,7 +48,9 @@ static void traverse_stmt_children(Statement* stmt, Visitor* visitor) {
             break;
         }
         case IF_STATEMENT: {
-            traverse_expr(stmt->u.expression_s, visitor);
+            if (stmt->u.ifop_s->op_kind == IF_OP_ENTER) {
+                traverse_expr(stmt->u.ifop_s->expression_s, visitor);
+            }
             break;
         }
         default: {
