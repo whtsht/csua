@@ -108,7 +108,7 @@ definition_or_statement
         ;
 
 if_statement
-        :if_begin_statement definition_or_statement if_end_statement
+        :if_begin_statement translation_unit if_end_statement
         { 
         }
         |if_begin_statement if_end_statement
