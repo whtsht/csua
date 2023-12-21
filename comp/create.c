@@ -254,3 +254,15 @@ Statement *cs_create_block_end_statement() {
     stmt->u.blockop_s = cs_create_block_operation(BLOCK_OPE_END);
     return stmt;
 }
+
+Statement *cs_create_if_begin_statement(Expression *expr) {
+    Statement *stmt = cs_create_statement(IF_STATEMENT);
+    printf("create if begin stmt\n");
+    return stmt;
+}
+
+Statement *cs_create_if_end_statement() {
+    Statement *stmt = cs_create_statement(IF_STATEMENT);
+    printf("create if end stmt");
+    return stmt;
+}

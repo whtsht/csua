@@ -171,8 +171,14 @@ typedef enum {
     EXPRESSION_STATEMENT = 1,
     DECLARATION_STATEMENT,
     BLOCKOPERATION_STATEMENT,
-    STATEMENT_TYPE_COUNT_PLUS_ONE
+    STATEMENT_TYPE_COUNT_PLUS_ONE,
+    IF_STATEMENT,
 } StatementType;
+
+typedef struct {
+    Expression *expression_s;
+    BlockOperation *blockop_s;
+} IfOperation;
 
 struct Statement_tag {
     StatementType type;
@@ -327,7 +333,7 @@ ArgumentList *cs_chain_argument_list(ArgumentList *list, Expression *expr);
 
 Statement *cs_create_block_begin_statement();
 Statement *cs_create_block_end_statement();
-Statement *cs_create_if_begin_statement();
+Statement *cs_create_if_begin_statement(Expression *expr);
 Statement *cs_create_if_end_statement();
 
 void cs_record_checkpoint(BlockOperationType type);
