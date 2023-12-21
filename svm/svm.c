@@ -194,7 +194,9 @@ static void disasm(SVM_VirtualMachine *svm) {
             case SVM_MINUS_DOUBLE:
             case SVM_INCREMENT:
             case SVM_DECREMENT:
-            case SVM_INVOKE: {
+            case SVM_INVOKE:
+            case SVM_GOTO:
+            case SVM_LABEL: {
                 //                printf("%s\n", oinfo->opname);
                 add_opname(&dinfo, oinfo->opname);
                 break;
