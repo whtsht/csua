@@ -194,7 +194,9 @@ static void disasm(SVM_VirtualMachine *svm) {
             case SVM_MINUS_DOUBLE:
             case SVM_INCREMENT:
             case SVM_DECREMENT:
-            case SVM_INVOKE: {
+            case SVM_INVOKE:
+            case SVM_GOTO:
+            case SVM_LABEL: {
                 //                printf("%s\n", oinfo->opname);
                 add_opname(&dinfo, oinfo->opname);
                 break;
@@ -288,6 +290,7 @@ static void parse(uint8_t *buf, SVM_VirtualMachine *svm) {
     memcpy(svm->code, pos, svm->code_size);
     pos += svm->code_size;
     svm->stack_size = read_int(&pos);
+    svm->pt_stack_size = read_int(&pos);
 }
 
 static SVM_VirtualMachine *svm_create() {
@@ -304,7 +307,7 @@ static SVM_VirtualMachine *svm_create() {
     svm->functions = NULL;
     svm->stack = NULL;
     svm->stack_size = 0;
-    svm->pt_stack_size = 100;  //
+    svm->pt_stack_size = 0;  //
     svm->stack_value_type = NULL;
     svm->pt_stack_count = 0;
     svm->pt_stack = NULL;  //
@@ -454,9 +457,7 @@ static void init_svm(SVM_VirtualMachine *svm) {
     svm->pc = 0;
     svm->sp = 0;
     svm->pt_stack_count = 0;
-
-    // TODO use size from header
-    svm->pt_stack = (size_t *)MEM_malloc(sizeof(size_t) * 300);
+    svm->pt_stack = (size_t *)MEM_malloc(sizeof(size_t) * svm->pt_stack_size);
 
     for (int i = 0; i < svm->global_variable_count; ++i) {
         switch (svm->global_variable_types[i]) {
@@ -775,6 +776,50 @@ static void svm_run(SVM_VirtualMachine *svm) {
             }
             case SVM_POP: {
                 pop_i(svm);
+                break;
+            }
+            case SVM_GOTO: {
+                uint16_t s_idx = pop_i(svm);
+                if (s_idx) {
+                    // True->Run code in Block
+                    fetch2(svm);  // skip label
+                    break;
+                }
+                // False->GOTO
+                uint16_t s_idx_goto = fetch2(svm);
+
+                // skip until LABEL
+                while (running) {
+                    switch (op = fetch(svm)) {
+                        case SVM_LABEL: {
+                            uint16_t s_idx_label = fetch2(svm);
+                            if (s_idx_goto == s_idx_label) {
+                                goto END_WHILE;
+                            }
+                            break;
+                        }
+                        default: {
+                            OpcodeInfo *_oinfo = &svm_opcode_info[op];
+                            if (_oinfo->s_size >= 1) {
+                                int fetch_size = _oinfo->s_size;
+                                for (; fetch_size > 0; fetch_size--) {
+                                    fetch2(svm);  // trash
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    running = svm->pc < svm->code_size;
+                }
+                fprintf(stderr, "cannot exit from if in svm_run\n");
+                show_status(svm);
+                exit(1);
+            END_WHILE:
+                break;
+            }
+            case SVM_LABEL: {
+                // skip label
+                fetch2(svm);
                 break;
             }
             default: {
