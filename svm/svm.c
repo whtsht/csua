@@ -290,6 +290,7 @@ static void parse(uint8_t *buf, SVM_VirtualMachine *svm) {
     memcpy(svm->code, pos, svm->code_size);
     pos += svm->code_size;
     svm->stack_size = read_int(&pos);
+    svm->pt_stack_size = read_int(&pos);
 }
 
 static SVM_VirtualMachine *svm_create() {
@@ -306,7 +307,7 @@ static SVM_VirtualMachine *svm_create() {
     svm->functions = NULL;
     svm->stack = NULL;
     svm->stack_size = 0;
-    svm->pt_stack_size = 100;  //
+    svm->pt_stack_size = 0;  //
     svm->stack_value_type = NULL;
     svm->pt_stack_count = 0;
     svm->pt_stack = NULL;  //
@@ -456,9 +457,7 @@ static void init_svm(SVM_VirtualMachine *svm) {
     svm->pc = 0;
     svm->sp = 0;
     svm->pt_stack_count = 0;
-
-    // TODO use size from header
-    svm->pt_stack = (size_t *)MEM_malloc(sizeof(size_t) * 300);
+    svm->pt_stack = (size_t *)MEM_malloc(sizeof(size_t) * svm->pt_stack_size);
 
     for (int i = 0; i < svm->global_variable_count; ++i) {
         switch (svm->global_variable_types[i]) {
