@@ -108,11 +108,14 @@ definition_or_statement
         ;
 
 if_statement
-        :IF if_begin_statement expression if_end_statement block{ }
+        :IF if_begin_statement block
+        { 
+
+        }
         ;
 
 if_begin_statement
-        :LP
+        :LP expression RP
         {
            CS_Compiler* compiler =
            cs_get_current_compiler();
@@ -134,7 +137,13 @@ if_end_statement
 
 block
         : block_begin_statement translation_unit block_end_statement { }
-        | LC RC { }
+        | LC RC 
+        { 
+                CS_Compiler* compiler = cs_get_current_compiler();
+                if(compiler){
+                        compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list,cs_create_block_begin_statement());
+                }
+        }
         ;
 
 block_begin_statement
