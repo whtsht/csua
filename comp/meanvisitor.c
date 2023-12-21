@@ -551,6 +551,20 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
     }
 }
 
+static void enter_ifopstmt(Statement* stmt, Visitor* visitor) {
+    switch (stmt->u.ifop_s->expression_s->type) {
+        case CS_INT_TYPE: {
+            break;
+        }
+        default: {
+            fprintf(stderr, "unknown type in enter_ifstmt\n");
+            exit(1);
+        }
+    }
+}
+
+static void leave_ifopstmt(Statement* stmt, Visitor* visitor) {}
+
 static void enter_blkopstmt(Statement* stmt, Visitor* visitor) {
     switch (stmt->u.blockop_s->type) {
         case BLOCK_OPE_BEGIN: {
@@ -620,6 +634,7 @@ MeanVisitor* create_mean_visitor() {
     enter_stmt_list[EXPRESSION_STATEMENT] = enter_exprstmt;
     enter_stmt_list[DECLARATION_STATEMENT] = enter_declstmt;
     enter_stmt_list[BLOCKOPERATION_STATEMENT] = enter_blkopstmt;
+    enter_stmt_list[IFOPERATION_STATEMENT] = enter_ifopstmt;
 
     leave_expr_list[BOOLEAN_EXPRESSION] = leave_boolexpr;
     leave_expr_list[INT_EXPRESSION] = leave_intexpr;
@@ -650,6 +665,7 @@ MeanVisitor* create_mean_visitor() {
     leave_stmt_list[EXPRESSION_STATEMENT] = leave_exprstmt;
     leave_stmt_list[DECLARATION_STATEMENT] = leave_declstmt;
     leave_stmt_list[BLOCKOPERATION_STATEMENT] = leave_blkopstmt;
+    leave_stmt_list[IFOPERATION_STATEMENT] = leave_ifopstmt;
 
     ((Visitor*)visitor)->enter_expr_list = enter_expr_list;
     ((Visitor*)visitor)->leave_expr_list = leave_expr_list;
