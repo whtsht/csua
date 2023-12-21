@@ -809,39 +809,42 @@ static void leave_blkopstmt(Statement* stmt, Visitor* visitor) {
         compiler->cp_list_tail = compiler->cp_list_tail->next;
 }
 
-static void enter_ifop_stmt(Statement* stmt, Visitor* visitor) {
-    switch (stmt->type) {
-        case IF_STATEMENT: {
-            break;
-        }
-        default: {
-            fprintf(stderr, "unknown type in enter_ifop_stmt\n");
-            exit(1);
-        }
-    }
+int id_stack[100];
+int id_stack_pointer = 0;
+int id = 0;
+
+void push_id() {}
+
+static void enter_if_stmt(Statement* stmt, Visitor* visitor) {
+    printf("enter_if_stmt\n");
+    // switch (stmt->type) {
+    //     case IF_STATEMENT: {
+    //         break;
+    //     }
+    //     default: {
+    //         fprintf(stderr, "unknown type in enter_ifop_stmt\n");
+    //         exit(1);
+    //     }
+    // }
 }
 
-// if
-//   expression
-//   statement
-
-int id = 0;
-static void leave_ifop_stmt(Statement* stmt, Visitor* visitor) {
-    switch (stmt->type) {
-        case IF_STATEMENT: {
-            // cond Expression
-            // visitor->leave_expr_list[](stmt->u.ifop_s->expression_s,
-            // visitor); Goto <id>
-
-            // then Statement
-            // Label <id>
-            break;
-        }
-        default: {
-            fprintf(stderr, "unknown type in leave_ifop_stmt\n");
-            exit(1);
-        }
-    }
+static void leave_if_stmt(Statement* stmt, Visitor* visitor) {
+    printf("leave_if_stmt\n");
+    // switch (stmt->type) {
+    //     case IF_STATEMENT: {
+    //         // cond Expression
+    //         // visitor->leave_expr_list[](stmt->u.ifop_s->expression_s,
+    //         // visitor); Goto <id>
+    //
+    //         // then Statement
+    //         // Label <id>
+    //         break;
+    //     }
+    //     default: {
+    //         fprintf(stderr, "unknown type in leave_ifop_stmt\n");
+    //         exit(1);
+    //     }
+    // }
 }
 
 CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
@@ -918,6 +921,7 @@ CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
     enter_stmt_list[EXPRESSION_STATEMENT] = enter_exprstmt;
     enter_stmt_list[DECLARATION_STATEMENT] = enter_declstmt;
     enter_stmt_list[BLOCKOPERATION_STATEMENT] = enter_blkopstmt;
+    enter_stmt_list[IF_STATEMENT] = enter_if_stmt;
 
     notify_expr_list[ASSIGN_EXPRESSION] = notify_assignexpr;
 
@@ -950,6 +954,7 @@ CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
     leave_stmt_list[EXPRESSION_STATEMENT] = leave_exprstmt;
     leave_stmt_list[DECLARATION_STATEMENT] = leave_declstmt;
     leave_stmt_list[BLOCKOPERATION_STATEMENT] = leave_blkopstmt;
+    leave_stmt_list[IF_STATEMENT] = leave_if_stmt;
 
     ((Visitor*)visitor)->enter_expr_list = enter_expr_list;
     ((Visitor*)visitor)->leave_expr_list = leave_expr_list;

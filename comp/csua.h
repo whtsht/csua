@@ -175,8 +175,11 @@ typedef enum {
     STATEMENT_TYPE_COUNT_PLUS_ONE,
 } StatementType;
 
+typedef enum { IF_OP_ENTER, IF_OP_LEAVE } IF_OP_KIND;
+
 typedef struct {
     Expression *expression_s;
+    IF_OP_KIND op_kind;
 } IfOperation;
 
 struct Statement_tag {
