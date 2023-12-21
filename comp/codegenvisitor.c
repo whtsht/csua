@@ -809,6 +809,41 @@ static void leave_blkopstmt(Statement* stmt, Visitor* visitor) {
         compiler->cp_list_tail = compiler->cp_list_tail->next;
 }
 
+static void enter_ifop_stmt(Statement* stmt, Visitor* visitor) {
+    switch (stmt->type) {
+        case IF_STATEMENT: {
+            break;
+        }
+        default: {
+            fprintf(stderr, "unknown type in enter_ifop_stmt\n");
+            exit(1);
+        }
+    }
+}
+
+// if
+//   expression
+//   statement
+
+int id = 0;
+static void leave_ifop_stmt(Statement* stmt, Visitor* visitor) {
+    switch (stmt->type) {
+        case IF_STATEMENT: {
+            // cond Expression
+            // visitor->leave_expr_list[](stmt->u.ifop_s->expression_s,
+            // visitor); Goto <id>
+
+            // then Statement
+            // Label <id>
+            break;
+        }
+        default: {
+            fprintf(stderr, "unknown type in leave_ifop_stmt\n");
+            exit(1);
+        }
+    }
+}
+
 CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,
                                        CS_Executable* exec) {
     visit_expr* enter_expr_list;
