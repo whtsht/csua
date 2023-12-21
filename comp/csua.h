@@ -171,13 +171,12 @@ typedef enum {
     EXPRESSION_STATEMENT = 1,
     DECLARATION_STATEMENT,
     BLOCKOPERATION_STATEMENT,
-    STATEMENT_TYPE_COUNT_PLUS_ONE,
     IF_STATEMENT,
+    STATEMENT_TYPE_COUNT_PLUS_ONE,
 } StatementType;
 
 typedef struct {
     Expression *expression_s;
-    BlockOperation *blockop_s;
 } IfOperation;
 
 struct Statement_tag {
@@ -187,6 +186,7 @@ struct Statement_tag {
         Expression *expression_s;
         Declaration *declaration_s;
         BlockOperation *blockop_s;
+        IfOperation *ifop_s;
     } u;
 };
 

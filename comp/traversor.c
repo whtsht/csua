@@ -47,6 +47,10 @@ static void traverse_stmt_children(Statement* stmt, Visitor* visitor) {
             // fprintf(stderr, "traversed: BLOCKOPERATION_STATEMENT\n");
             break;
         }
+        case IF_STATEMENT: {
+            traverse_expr(stmt->u.expression_s, visitor);
+            break;
+        }
         default: {
             fprintf(stderr, "No such stmt->type %d in traverse_stmt_children\n",
                     stmt->type);
