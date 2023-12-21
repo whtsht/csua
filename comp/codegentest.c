@@ -145,6 +145,24 @@ static int count_stack_size(uint8_t* code, size_t len) {
     return st_size;
 }
 
+static int count_pointer_stack_size(uint8_t* code, size_t len) {
+    int max_pst_size = 0;
+    int pst_size = 0;
+    for (int i = 0; i < len; ++i) {
+        OpcodeInfo* oinfo = &svm_opcode_info[code[i]];
+        if (strcmp(oinfo->opname, "push_stack_pointer") == 0) {
+            pst_size += 1;
+            if (pst_size > max_pst_size) {
+                max_pst_size = pst_size;
+            }
+        }
+        if (strcmp(oinfo->opname, "pop_stack_pointer") == 0) {
+            pst_size -= 1;
+        }
+    }
+    return max_pst_size;
+}
+
 static void serialize(CS_Executable* exec, char* filename) {
     FILE* fp;
 
@@ -209,6 +227,10 @@ static void serialize(CS_Executable* exec, char* filename) {
     int stack_size = count_stack_size(exec->code, exec->code_size);
     //    printf("s_size = %d\n", stack_size);
     write_int(stack_size, fp);
+
+    int pointer_stack_size =
+        count_pointer_stack_size(exec->code, exec->code_size);
+    write_int(pointer_stack_size, fp);
 
     fclose(fp);
 }
