@@ -109,7 +109,7 @@ definition_or_statement
 
 if_statement
         :if_begin_statement translation_unit if_end_statement
-        { 
+        {
         }
         |if_begin_statement if_end_statement
         ;
@@ -121,8 +121,8 @@ if_begin_statement
            cs_get_current_compiler();
            if(compiler){
                 compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list, cs_create_if_begin_statement($3));
-                compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list,cs_create_block_begin_statement());
-           }     
+                compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list, cs_create_block_begin_statement());
+           }
         }
 
 if_end_statement
@@ -131,19 +131,18 @@ if_end_statement
            CS_Compiler* compiler =
            cs_get_current_compiler();
            if(compiler){
+              compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list, cs_create_block_end_statement());
               compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list, cs_create_if_end_statement());
-              compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list,cs_create_block_end_statement());
            }
         }
-        
 
 block
         : block_begin_statement translation_unit block_end_statement { }
-        | LC RC 
-        { 
+        | LC RC
+        {
                 CS_Compiler* compiler = cs_get_current_compiler();
                 if(compiler){
-                        compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list,cs_create_block_begin_statement());
+                        compiler->stmt_list = cs_chain_statement_list(compiler->stmt_list, cs_create_block_begin_statement());
                 }
         }
         ;
