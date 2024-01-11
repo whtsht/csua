@@ -697,7 +697,7 @@ static void notify_assignexpr(Expression* expr, Visitor* visitor) {
         case ASSIGN_PLUS_ONE: {
             break;
         }
-        defualt: {
+        default: {
             fprintf(stderr, "unsupported assign operator\n");
             exit(1);
         }
