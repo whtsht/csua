@@ -553,15 +553,46 @@ static void leave_declstmt(Statement* stmt, Visitor* visitor) {
 
 static void enter_ifopstmt(Statement* stmt, Visitor* visitor) {
     if (stmt->u.ifop_s->op_kind == IF_OP_LEAVE) return;
-    switch (stmt->u.ifop_s->expression_s->kind) {
-        case INT_EXPRESSION: {
+    switch (stmt->u.ifop_s->expression_s->type->basic_type) {
+        case CS_BOOLEAN_TYPE:
+        case CS_INT_TYPE:
             break;
-        }
-        default: {
+
+        default:
             fprintf(stderr, "unknown type in enter_ifstmt\n");
             exit(1);
-        }
     }
+
+    /*
+        switch (stmt->u.ifop_s->expression_s->kind) {
+            case BOOLEAN_EXPRESSION:
+            case INT_EXPRESSION:
+            case IDENTIFIER_EXPRESSION:
+            case INCREMENT_EXPRESSION:
+            case DECREMENT_EXPRESSION:
+            case MINUS_EXPRESSION:
+            case LOGICAL_NOT_EXPRESSION:
+            case MUL_EXPRESSION:
+            case DIV_EXPRESSION:
+            case MOD_EXPRESSION:
+            case ADD_EXPRESSION:
+            case SUB_EXPRESSION:
+            case GT_EXPRESSION:
+            case GE_EXPRESSION:
+            case LT_EXPRESSION:
+            case LE_EXPRESSION:
+            case EQ_EXPRESSION:
+            case NE_EXPRESSION:
+            case LOGICAL_AND_EXPRESSION:
+            case LOGICAL_OR_EXPRESSION:
+            case CAST_EXPRESSION: {
+            }
+            default: {
+                fprintf(stderr, "unknown type in enter_ifstmt\n");
+                exit(1);
+            }
+        }
+        */
 }
 
 static void leave_ifopstmt(Statement* stmt, Visitor* visitor) {}
