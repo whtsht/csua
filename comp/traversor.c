@@ -26,8 +26,13 @@ void traverse_stmt(Statement* stmt, Visitor* visitor) {
             fprintf(stderr, "enter->type(%d) is null\n", stmt->type);
             exit(1);
         }
-        visitor->enter_stmt_list[stmt->type](stmt, visitor);
-        traverse_stmt_children(stmt, visitor);
+        if (stmt->type == IF_STATEMENT) {
+            traverse_stmt_children(stmt, visitor);
+            visitor->enter_stmt_list[stmt->type](stmt, visitor);
+        } else {
+            visitor->enter_stmt_list[stmt->type](stmt, visitor);
+            traverse_stmt_children(stmt, visitor);
+        }
         visitor->leave_stmt_list[stmt->type](stmt, visitor);
     }
 }

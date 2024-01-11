@@ -813,38 +813,52 @@ int id_stack[100];
 int id_stack_pointer = 0;
 int id = 0;
 
-void push_id() {}
+void push_id() {
+    if (id_stack_pointer >= 99) {
+        printf("deeply nest\n");
+        exit(EXIT_FAILURE);
+    }
+    id_stack[id_stack_pointer] = id;
+    id += 1;
+    id_stack_pointer += 1;
+}
+
+int current_id() { return id_stack[id_stack_pointer - 1]; }
+
+int pop_id() {
+    id_stack_pointer -= 1;
+    return id_stack[id_stack_pointer];
+}
 
 static void enter_if_stmt(Statement* stmt, Visitor* visitor) {
-    printf("enter_if_stmt\n");
-    // switch (stmt->type) {
-    //     case IF_STATEMENT: {
-    //         break;
-    //     }
-    //     default: {
-    //         fprintf(stderr, "unknown type in enter_ifop_stmt\n");
-    //         exit(1);
-    //     }
-    // }
+    switch (stmt->type) {
+        case IF_STATEMENT: {
+            if (stmt->u.ifop_s->op_kind == IF_OP_ENTER) {
+                push_id();
+                gen_byte_code((CodegenVisitor*)visitor, SVM_GOTO, current_id());
+            }
+            break;
+        }
+        default: {
+            fprintf(stderr, "unknown type in enter_ifop_stmt\n");
+            exit(1);
+        }
+    }
 }
 
 static void leave_if_stmt(Statement* stmt, Visitor* visitor) {
-    printf("leave_if_stmt\n");
-    // switch (stmt->type) {
-    //     case IF_STATEMENT: {
-    //         // cond Expression
-    //         // visitor->leave_expr_list[](stmt->u.ifop_s->expression_s,
-    //         // visitor); Goto <id>
-    //
-    //         // then Statement
-    //         // Label <id>
-    //         break;
-    //     }
-    //     default: {
-    //         fprintf(stderr, "unknown type in leave_ifop_stmt\n");
-    //         exit(1);
-    //     }
-    // }
+    switch (stmt->type) {
+        case IF_STATEMENT: {
+            if (stmt->u.ifop_s->op_kind == IF_OP_LEAVE) {
+                gen_byte_code((CodegenVisitor*)visitor, SVM_LABEL, pop_id());
+            }
+            break;
+        }
+        default: {
+            fprintf(stderr, "unknown type in leave_ifop_stmt\n");
+            exit(1);
+        }
+    }
 }
 
 CodegenVisitor* create_codegen_visitor(CS_Compiler* compiler,

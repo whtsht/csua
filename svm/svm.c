@@ -547,13 +547,16 @@ static void svm_run(SVM_VirtualMachine *svm) {
                 //                exit(1);
                 break;
             }
+            /* なぜかここをスワップするとちゃんと動く */
             case SVM_POP_STACK_PT:  //
             {
-                pop_pt(svm);
+                // pop_pt(svm);
+                push_pt(svm);
                 break;
             }
             case SVM_PUSH_STACK_PT: {  //
-                push_pt(svm);
+                // push_pt(svm);
+                pop_pt(svm);
                 break;
             }
             case SVM_PUSH_STATIC_INT: {
