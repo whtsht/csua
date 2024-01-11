@@ -74,12 +74,12 @@ static void addText(char c) {
 }
 
 // test function
-static void showText() {
-    for (int i = 0; i < ytp; ++i) {
-        printf("%d ", (int)yytext[i]);
-    }
-    printf("\n");
-}
+// static void showText() {
+//     for (int i = 0; i < ytp; ++i) {
+//         printf("%d ", (int)yytext[i]);
+//     }
+//     printf("\n");
+// }
 
 static void pushback() { --ptr; }
 

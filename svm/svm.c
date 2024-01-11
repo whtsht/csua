@@ -281,7 +281,6 @@ static void parse(uint8_t *buf, SVM_VirtualMachine *svm) {
                 //                printf("DOUBLE\n");
                 break;
             }
-            defulat: { break; }
         }
     }
 

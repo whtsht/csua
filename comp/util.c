@@ -116,7 +116,6 @@ static Declaration* search_decls_from_list(DeclarationList* list,
 Declaration* cs_search_decl_in_block(const char* name,
                                      DeclarationList* decl_list_border,
                                      CheckpointList* cp_list_boarder) {
-    CS_Compiler* compiler = cs_get_current_compiler();
     CheckpointList* cp_list = cp_list_boarder;
 
     // スキップすべき最初のCheckpoint(BLOCK_OPE_END:'}')を見つけるまでCheckpointStackを逆順にたどる
@@ -168,7 +167,6 @@ static FunctionDeclaration* search_function_from_list(
 FunctionDeclaration* cs_search_func_in_block(
     const char* name, FunctionDeclarationList* func_decl_list_border,
     CheckpointList* cp_list_boarder) {
-    CS_Compiler* compiler = cs_get_current_compiler();
     CheckpointList* cp_list = cp_list_boarder;
 
     // スキップすべき最初のCheckpoint(BLOCK_OPE_END:'}')を見つけるまでCheckpointStackを逆順にたどる

@@ -694,7 +694,9 @@ static void notify_assignexpr(Expression* expr, Visitor* visitor) {
         case ASSIGN: {
             break;
         }
-        case ASSIGN_PLUS_ONE:
+        case ASSIGN_PLUS_ONE: {
+            break;
+        }
         defualt: {
             fprintf(stderr, "unsupported assign operator\n");
             exit(1);
@@ -755,7 +757,7 @@ static void enter_declstmt(Statement* stmt, Visitor* visitor) {
 static void leave_declstmt(Statement* stmt, Visitor* visitor) {
     //    fprintf(stderr, "leave declstmt\n");
     if (stmt->u.declaration_s->initializer) {
-        Declaration* decl;
+        Declaration* decl = NULL;
         //? cs_search_decl_in_blockを適用する必要あり？
         // CS_Compiler* compiler = cs_get_current_compiler();
         // decl = cs_search_decl_in_block(stmt->u.declaration_s->name,
