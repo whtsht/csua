@@ -139,11 +139,6 @@ void MEM_free_func(MEM_Controller controller, void* bptr) {
 
 void* MEM_malloc_func(MEM_Controller controller, char* filename, int line,
                       size_t size) {
-    uint8_t* ptr;
-    uint32_t i;
-    //    fprintf(stderr, "call mem_malloc_func\n");
-    uint32_t hsize = sizeof(Header);
-
     size_t alloc_size = sizeof(Header) + size + MARK_SIZE;
 
     Header* header = (Header*)malloc(alloc_size);

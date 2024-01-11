@@ -5,7 +5,6 @@
 #include "csua.h"
 
 static MEM_Storage storage = NULL;
-static CS_Compiler *compiler = NULL;
 
 static int *linenum = NULL;
 

@@ -1,7 +1,7 @@
 CC = /usr/bin/gcc
 
 TARGET = memtest
-CFLAGS = -c -g -DDEBUG
+CFLAGS = -c -g -DDEBUG -Wall
 
 OBJS = memtest.o memory.o storage.o
 
