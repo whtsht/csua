@@ -119,6 +119,7 @@ Expression *cs_create_binary_expression(ExpressionKind kind, Expression *left,
     Expression *expr = cs_create_expression(kind);
     expr->u.binary_expression.left = left;
     expr->u.binary_expression.right = right;
+    expr->type = cs_create_type_specifier(CS_BOOLEAN_TYPE);
     return expr;
 }
 
