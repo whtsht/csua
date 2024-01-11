@@ -127,7 +127,8 @@ Declaration* cs_search_decl_in_block(const char* name,
     DeclarationList* list = decl_list_border;
 
     while (list != NULL) {
-        if (cp_list != NULL && list == cp_list->checkpoint->decl_list_ptr) {
+        if (cp_list != NULL && list == cp_list->checkpoint->decl_list_ptr &&
+            cp_list->prev != NULL) {
             fprintf(stderr, "Skip block: [decl=%p->%p]\n",
                     cp_list->checkpoint->decl_list_ptr,
                     cp_list->prev->checkpoint->decl_list_ptr);
@@ -145,6 +146,7 @@ Declaration* cs_search_decl_in_block(const char* name,
 
         list = list->prev;
     }
+    fprintf(stderr, "Not Found variable\n");
     return NULL;
 }
 
